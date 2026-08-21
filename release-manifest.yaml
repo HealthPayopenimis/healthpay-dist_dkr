@@ -1,0 +1,195 @@
+# HealthPay Payer System — Release Manifest
+# Trial: trial-1 | Baseline: openIMIS release/26.04 | Slice: 1 (core payer flow)
+# Gate M rule: every dependency in the generated build context MUST resolve to exactly
+# these commits. file: paths, github.com/openimis/ URLs, and branch refs in generated
+# manifests are build failures. This file is regenerated and diffed post context-generation.
+release: hp-26.04-slice1-trial1
+baseline: openimis-release-26.04
+database_strategy: empty-postgresql-real-migrations   # NO legacy SQL bootstrap, NO --fake-initial
+modules_disabled_slice1: [invoice, payroll, individual, social_protection, benefit_plan, grievance, opensearch, deduplication, ledger]
+components:
+  - name: healthpay-fe_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe_js
+    ref: hp-main
+    commit: d7424e344ad1756411282259bc76b792da3a9cc2
+    role: frontend-assembly
+  - name: healthpay-be_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be_py
+    ref: release/26.04
+    commit: 78cc968acf5611b5a911ae5226e25bf0b7ff67d4
+    role: backend-assembly
+  - name: healthpay-dist_dkr
+    repo: https://github.com/HealthPayopenimis/healthpay-dist_dkr
+    ref: release/26.04
+    commit: 6f1411d73c905f5fa789ba22f5a7e5612deb64ff
+    role: deployment
+  - name: healthpay-fe-core_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-core_js
+    ref: release/26.04
+    commit: 56d459aea78b8fa3fb93b47bdcacfb3b30e3e31d
+    role: frontend-module
+  - name: healthpay-fe-home_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-home_js
+    ref: release/26.04
+    commit: 1e78ebf579228ca8bc93e0711b0bcd246c8aa2f8
+    role: frontend-module
+  - name: healthpay-fe-admin_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-admin_js
+    ref: release/26.04
+    commit: 738ae83dbea42b407ad4d0f7784de67496166ec4
+    role: frontend-module
+  - name: healthpay-fe-location_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-location_js
+    ref: release/26.04
+    commit: 021db2e7f53068be214bc3b3539a3a0c7a477323
+    role: frontend-module
+  - name: healthpay-fe-insuree_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-insuree_js
+    ref: release/26.04
+    commit: 4105b45e4bdacb877abef125ff62b52bb0599e22
+    role: frontend-module
+  - name: healthpay-fe-product_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-product_js
+    ref: release/26.04
+    commit: 6ed3a323bff25e9a56519475d4e38f9eef9f180a
+    role: frontend-module
+  - name: healthpay-fe-medical_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-medical_js
+    ref: release/26.04
+    commit: 6be973d68d762373868fcf7165bf537aceebaea5
+    role: frontend-module
+  - name: healthpay-fe-medical_pricelist_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-medical_pricelist_js
+    ref: release/26.04
+    commit: 9073f07c8acbb676d9afb40a9b0dbe9e98a5fe64
+    role: frontend-module
+  - name: healthpay-fe-policy_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-policy_js
+    ref: release/26.04
+    commit: 76ab348aa1ab6a0cd654ec7d63f9f1fc69b60638
+    role: frontend-module
+  - name: healthpay-fe-contribution_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-contribution_js
+    ref: release/26.04
+    commit: 22d317be64662d3b585cfacdd91ff2d433b281f7
+    role: frontend-module
+  - name: healthpay-fe-payer_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-payer_js
+    ref: release/26.04
+    commit: dfa0ce500f0973d0250de17f87c33e13fcd2d178
+    role: frontend-module
+  - name: healthpay-fe-claim_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-claim_js
+    ref: release/26.04
+    commit: 15587e2961f59ab26e1d21cdef97ef12a5182309
+    role: frontend-module
+  - name: healthpay-fe-claim_batch_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-claim_batch_js
+    ref: release/26.04
+    commit: 0224deb6d61fa4e53c45ad52222d6a5d97e837c4
+    role: frontend-module
+  - name: healthpay-fe-payment_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-payment_js
+    ref: release/26.04
+    commit: acac9f691ebd704e5d05676b1656571ee2b7df51
+    role: frontend-module
+  - name: healthpay-fe-tools_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-tools_js
+    ref: release/26.04
+    commit: 9a798e50c84d6cef733d44392ab4c92212324048
+    role: frontend-module
+  - name: healthpay-fe-tasks_management_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-tasks_management_js
+    ref: release/26.04
+    commit: b8853281822a1ed03135d6c171a1601f094aa4fb
+    role: frontend-module
+  - name: healthpay-be-core_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-core_py
+    ref: release/26.04
+    commit: 38b19c7aa4ad1cea37cbfff03e1040f442d91d6b
+    role: backend-module
+  - name: healthpay-be-insuree_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-insuree_py
+    ref: release/26.04
+    commit: ebdb761f9412b926ef712c7e9578b13f466261f8
+    role: backend-module
+  - name: healthpay-be-location_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-location_py
+    ref: release/26.04
+    commit: 90394d96251dea394aae7595200d2262a049806e
+    role: backend-module
+  - name: healthpay-be-medical_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-medical_py
+    ref: release/26.04
+    commit: 4a6a05b76b9147fe988e855cea7f875e61ceb7e9
+    role: backend-module
+  - name: healthpay-be-medical_pricelist_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-medical_pricelist_py
+    ref: release/26.04
+    commit: 1f6987de172c3f2fc9e17970c3902b22e49d211f
+    role: backend-module
+  - name: healthpay-be-product_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-product_py
+    ref: release/26.04
+    commit: 902fabe2398f557cf37c4b90428dd0e83d0bd0f3
+    role: backend-module
+  - name: healthpay-be-policy_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-policy_py
+    ref: release/26.04
+    commit: 492614e60f163dad0315f9b0a62b97471f7a4849
+    role: backend-module
+  - name: healthpay-be-contribution_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-contribution_py
+    ref: release/26.04
+    commit: 060744ecb1198de12e0894b7bd35398ff804617d
+    role: backend-module
+  - name: healthpay-be-payer_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-payer_py
+    ref: release/26.04
+    commit: 65722e2b17e804f6458f9fae96b474ce755e3c14
+    role: backend-module
+  - name: healthpay-be-claim_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-claim_py
+    ref: release/26.04
+    commit: f208fa9c40ebf2f2823504084c86486313f0524a
+    role: backend-module
+  - name: healthpay-be-claim_batch_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-claim_batch_py
+    ref: release/26.04
+    commit: 97458a930cbab6dc666ad85237ddb792ed0997f1
+    role: backend-module
+  - name: healthpay-be-payment_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-payment_py
+    ref: release/26.04
+    commit: b5a74e500a250549419acd0272f2242fafd259ca
+    role: backend-module
+  - name: healthpay-be-report_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-report_py
+    ref: release/26.04
+    commit: 21ce72baadb3470dc8cefb9dbc6f576c2a2fe02c
+    role: backend-module
+  - name: healthpay-be-api_fhir_r4_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-api_fhir_r4_py
+    ref: release/26.04
+    commit: 514b1c70c6086cdc951b4cbbda66dec0cda64555
+    role: backend-module
+  - name: healthpay-be-tools_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-tools_py
+    ref: release/26.04
+    commit: c61aa03f70aa783d006dd34d8ce8b3594d9b2b81
+    role: backend-module
+  - name: healthpay-be-tasks_management_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-tasks_management_py
+    ref: release/26.04
+    commit: f6a92adc4bcb644ada54f24bcba61dc942101d40
+    role: backend-module
+  - name: healthpay-fe-language_ar_js
+    repo: https://github.com/HealthPayopenimis/healthpay-fe-language_ar_js
+    ref: main
+    commit: 582ac20ea43a8931aa3246578445d4a30fd50610
+    role: frontend-module (new, Tier B)
+  - name: healthpay-be-egypt_py
+    repo: https://github.com/HealthPayopenimis/healthpay-be-egypt_py
+    ref: main
+    commit: f95641bb46bd80461074a4710e3eef74e1277bf0
+    role: backend-module (new, Tier B)
