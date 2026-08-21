@@ -9,3 +9,4 @@ node_modules/
 cypress/screenshots/
 cypress/downloads/
 cypress/fixtures/tmp_individuals.csv
+cypress/fixtures/cred.json
