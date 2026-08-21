@@ -6,17 +6,31 @@
 release: hp-26.04-slice1-trial1
 baseline: openimis-release-26.04
 database_strategy: empty-postgresql-real-migrations   # NO legacy SQL bootstrap, NO --fake-initial
-modules_disabled_slice1: [invoice, payroll, individual, social_protection, benefit_plan, grievance, opensearch, deduplication, ledger]
+component_count: 37   # authoritative (earlier commit message said 38 in error)
+modules_disabled_slice1: [social_protection, calcrule_social_protection, calcrule_timesheet, opensearch_reports, deduplication, payroll, grievance_social_protection, claim_sampling, api_etl, dhis2_etl]
+# Dependency-driven decisions (differs from the v3 draft): invoice, calculation, contribution_plan,
+# policyholder, contract, payment_cycle, individual, workflow and the calcrule set are RETAINED even
+# though outside the Slice-1 acceptance path, because retained modules import from them
+# (e.g. calcrule_third_party_payment -> invoice). Under the empty-DB real-migrations strategy their
+# tables are created correctly, which eliminates the incident's silent-guard risk (§3.7).
+sourcing_allowlist:
+  # Incident §5.1 permits deliberately retained upstream references with a documented reason.
+  - rule: modules NOT among the 16 forked pins may resolve as exact-version upstream artifacts
+    reason: identical upstream code at the 26.04 baseline; private-registry republication is Slice-2 hardening
+    applies: exact PyPI pins (openimis-be-X==vN) and exact npm pins (@openimis/fe-X@vN)
+  - rule: transitive @openimis/* npm and openimis-be-* pip dependencies of pinned modules may resolve from public registries
+    reason: module repos' own package manifests still declare upstream names at trial-1
+  - forbidden: any 'file:' path, any branch ref, any '>=' or '^' range in generated manifests
 components:
   - name: healthpay-fe_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe_js
     ref: hp-main
-    commit: d7424e344ad1756411282259bc76b792da3a9cc2
+    commit: 80a0671ce0c9b00c7a35de8b261b42e43159ff5b
     role: frontend-assembly
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
-    ref: release/26.04
-    commit: 78cc968acf5611b5a911ae5226e25bf0b7ff67d4
+    ref: hp-main
+    commit: d511d8da4953ef8248fa9fed70d16318101b5e94
     role: backend-assembly
   - name: healthpay-dist_dkr
     repo: https://github.com/HealthPayopenimis/healthpay-dist_dkr
