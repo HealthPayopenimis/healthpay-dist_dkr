@@ -7,7 +7,13 @@ release: hp-26.04-slice1-trial1
 baseline: openimis-release-26.04
 database_strategy: empty-postgresql-real-migrations   # NO legacy SQL bootstrap, NO --fake-initial
 component_count: 37   # authoritative (earlier commit message said 38 in error)
-modules_disabled_slice1: [social_protection, calcrule_social_protection, calcrule_timesheet, opensearch_reports, deduplication, payroll, grievance_social_protection, claim_sampling, api_etl, dhis2_etl]
+modules_disabled_slice1: [social_protection, calcrule_social_protection, calcrule_timesheet, opensearch_reports, deduplication, payroll, grievance_social_protection, claim_sampling, api_etl, dhis2_etl, calcrule_validations, payment_cycle, individual, workflow]
+# Gate I1 amendment (import-graph scan of all retained modules at their pinned refs):
+#   calcrule_validations -> social_protection (top-level), payment_cycle -> payroll (top-level),
+#   individual -> opensearch_reports (top-level), workflow -> individual (top-level).
+#   All four dropped; reverse scan confirmed nothing retained imports any of them
+#   (tasks_management self-contained). This corrects the earlier rationale which
+#   assumed individual/workflow were required by retained modules.
 # Dependency-driven decisions (differs from the v3 draft): invoice, calculation, contribution_plan,
 # policyholder, contract, payment_cycle, individual, workflow and the calcrule set are RETAINED even
 # though outside the Slice-1 acceptance path, because retained modules import from them
@@ -25,12 +31,12 @@ components:
   - name: healthpay-fe_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe_js
     ref: hp-main
-    commit: 80a0671ce0c9b00c7a35de8b261b42e43159ff5b
+    commit: aa1cace3770a3060ba408e0a72cd28bc52988c94
     role: frontend-assembly
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
     ref: hp-main
-    commit: d511d8da4953ef8248fa9fed70d16318101b5e94
+    commit: 6755c229dc27c42f163c6509a7c3ee60b8be18e1
     role: backend-assembly
   - name: healthpay-dist_dkr
     repo: https://github.com/HealthPayopenimis/healthpay-dist_dkr
