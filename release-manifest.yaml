@@ -5,7 +5,11 @@
 # manifests are build failures. This file is regenerated and diffed post context-generation.
 release: hp-26.04-slice1-trial1
 baseline: openimis-release-26.04
-database_strategy: empty-postgresql-real-migrations   # NO legacy SQL bootstrap, NO --fake-initial
+database_strategy: legacy-bootstrap-then-real-migrations   # AMENDED at Gate I4 (see bootstrap/README.md):
+#   local rehearsal proved the 26.04 migration graph is not self-sufficient on empty PG
+#   (39 managed=False tables, 33 required views, system-role data dependencies).
+#   bootstrap/ (this repo) runs ONCE pre-migrate per fresh DB. Still BANNED: --fake-initial,
+#   and django_migrations as schema evidence — script/schema_audit.py remains sole arbiter.
 compose_authoritative: compose.healthpay.yml   # stock compose.yml set is NOT used at trial-1 (local db + auto-migrations + opensearch contradict Slice 1)
 schema_audit: healthpay-be_py/script/schema_audit.py   # Gate I4 evaluator; run per its header docstring
 component_count: 37   # authoritative (earlier commit message said 38 in error)
@@ -213,5 +217,5 @@ components:
   - name: healthpay-be-egypt_py
     repo: https://github.com/HealthPayopenimis/healthpay-be-egypt_py
     ref: main
-    commit: a5ac8b0dc79c9aefab6c4b3d6e6edd9bad121054
+    commit: 573933b27643f480dc64889fb5b38433a05f71d0
     role: backend-module (new, Tier B)
