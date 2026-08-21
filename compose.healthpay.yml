@@ -16,9 +16,13 @@
 #   - certbot: initial issuance path exists (profile `issue`), renewal separate —
 #     stock ships renewal-only, commented out (incident issue #1)
 #
-# First-boot TLS bootstrap (Gate I3):
+# First-boot TLS bootstrap (Gate I3) — run steps 2-3 back-to-back; do NOT
+# restart the frontend between them (a restart re-plants the self-signed
+# placeholder if issuance hasn't completed):
 #   1. docker compose -f compose.healthpay.yml up -d frontend   # serves HTTP + webroot
 #   2. docker compose -f compose.healthpay.yml --profile issue run --rm certbot-issue
+#      (certbot-issue auto-moves the entrypoint's self-signed placeholder aside
+#       and scrubs stale renewal artifacts before certonly; safe to re-run)
 #   3. docker compose -f compose.healthpay.yml exec frontend nginx -s reload
 #   4. docker compose -f compose.healthpay.yml --profile renew up -d certbot-renew
 
@@ -100,10 +104,33 @@ services:
   certbot-issue:
     profiles: ["issue"]
     image: certbot/certbot
-    command: >
-      certonly --webroot -w /var/www/certbot
-      -d ${DOMAIN} --email ${CERTBOT_EMAIL:?} --agree-tos --no-eff-email
-      ${CERTBOT_EXTRA_ARGS:-}
+    # The frontend entrypoint pre-populates live/${DOMAIN} with a self-signed
+    # placeholder (CN=localhost) whenever the real cert is missing, and certbot
+    # refuses to write into a live/ lineage it does not own. Detection rule:
+    # live/ dir present WITHOUT a non-empty renewal/<domain>.conf = not
+    # certbot-managed -> move it aside (timestamped) and scrub stale 0-byte
+    # renewal configs / empty archive dirs from prior failed runs, then issue.
+    # Idempotent: once a real lineage exists (non-empty renewal conf), the
+    # move-aside is skipped and certonly is a no-op/renewal.
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        set -e
+        D=/etc/letsencrypt
+        DOM="${DOMAIN}"
+        if [ -d "$$D/live/$$DOM" ] && [ ! -s "$$D/renewal/$$DOM.conf" ]; then
+          TS=$$(date +%s)
+          echo "[issue] moving aside non-certbot placeholder live/$$DOM -> live/$$DOM.placeholder.$$TS"
+          mv "$$D/live/$$DOM" "$$D/live/$$DOM.placeholder.$$TS"
+          rm -f "$$D/renewal/$$DOM.conf"
+          [ -d "$$D/archive/$$DOM" ] && rmdir "$$D/archive/$$DOM" 2>/dev/null || true
+        fi
+        exec certbot certonly --webroot -w /var/www/certbot \
+          -d "$$DOM" --email "${CERTBOT_EMAIL:?}" --agree-tos --no-eff-email \
+          ${CERTBOT_EXTRA_ARGS:-}
+    environment:
+      - DOMAIN=${DOMAIN:?}
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
