@@ -6,6 +6,8 @@
 release: hp-26.04-slice1-trial1
 baseline: openimis-release-26.04
 database_strategy: empty-postgresql-real-migrations   # NO legacy SQL bootstrap, NO --fake-initial
+compose_authoritative: compose.healthpay.yml   # stock compose.yml set is NOT used at trial-1 (local db + auto-migrations + opensearch contradict Slice 1)
+schema_audit: healthpay-be_py/script/schema_audit.py   # Gate I4 evaluator; run per its header docstring
 component_count: 37   # authoritative (earlier commit message said 38 in error)
 modules_disabled_slice1: [social_protection, calcrule_social_protection, calcrule_timesheet, opensearch_reports, deduplication, payroll, grievance_social_protection, claim_sampling, api_etl, dhis2_etl, calcrule_validations, payment_cycle, individual, workflow]
 # Gate I1 amendment (import-graph scan of all retained modules at their pinned refs):
@@ -36,7 +38,7 @@ components:
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
     ref: hp-main
-    commit: 6755c229dc27c42f163c6509a7c3ee60b8be18e1
+    commit: b4eb194c75d86fdb11226bdcef9d80a0f14fb8e8
     role: backend-assembly
   - name: healthpay-dist_dkr
     repo: https://github.com/HealthPayopenimis/healthpay-dist_dkr
