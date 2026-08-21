@@ -42,7 +42,7 @@ components:
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
     ref: hp-main
-    commit: 98c264dd0dabb23a5861c0031bd50f2717c1dab6
+    commit: ffb1f82dd51110ebcd359508bb8adfdb875d471b
     role: backend-assembly
   - name: healthpay-dist_dkr
     repo: https://github.com/HealthPayopenimis/healthpay-dist_dkr
@@ -217,5 +217,5 @@ components:
   - name: healthpay-be-egypt_py
     repo: https://github.com/HealthPayopenimis/healthpay-be-egypt_py
     ref: main
-    commit: 573933b27643f480dc64889fb5b38433a05f71d0
+    commit: 7023d23d43f1ed446c1a33d9a80f3078f8728cc7
     role: backend-module (new, Tier B)

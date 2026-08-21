@@ -29,3 +29,8 @@ system-role rows. The previous trial never saw any of this because
 2. `./bootstrap.sh` (env: DB_HOST/DB_PORT/DB_NAME/DB_USER/PGPASSWORD)
 3. `docker compose -f compose.healthpay.yml run --rm backend manage migrate`
 4. Schema audit per `healthpay-be_py/script/schema_audit.py` docstring — must print GREEN
+5. Create the first UI-capable admin (NOT `createsuperuser`, which makes a
+   technical-only user with zero rights and an empty menu):
+   `HP_ADMIN_PASSWORD=... docker compose -f compose.healthpay.yml run --rm backend \
+        manage create_interactive_admin --username <user> --email <addr>`
+   It must report `rights resolved: 249` (or non-zero); it errors out if not.
