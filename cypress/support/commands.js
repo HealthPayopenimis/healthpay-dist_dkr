@@ -24,15 +24,19 @@ Cypress.Commands.add('login', () => {
     });
   });
 
-  // Locale- and name-independent completion check. The upstream assertion was
-  // cy.contains('Welcome Admin Admin!'), which hardcodes the demo admin's name
-  // and English copy — neither holds for a HealthPay/Arabic deployment. Assert
-  // instead on the app state that actually means "logged in": we left the login
-  // route and the authenticated chrome (log-out control) is present.
+  // Locale-independent completion check.
+  //   v1 (upstream): cy.contains('Welcome Admin Admin!') — hardcoded the demo
+  //     admin's name AND English copy.
+  //   v2 (ours):     button[title="Log out"] — still an ENGLISH attribute; the
+  //     control exists in the Arabic shell but carries a translated title, so
+  //     this failed while login had actually succeeded.
+  //   v3 (this):     assert only on signals that carry no copy at all — the URL
+  //     left /front/login, and the app's own authenticated call returned 200.
   cy.url({ timeout: 30000 }).should('not.include', '/front/login');
-  cy.get('button[title="Log out"], button[aria-label="Log out"], [data-testid="logout"]', {
-    timeout: 30000,
-  }).should('exist');
+  cy.request({
+    url: '/api/core/users/current_user/',
+    failOnStatusCode: false,
+  }).its('status').should('eq', 200);
 })
 
 Cypress.Commands.add('logout', () => {

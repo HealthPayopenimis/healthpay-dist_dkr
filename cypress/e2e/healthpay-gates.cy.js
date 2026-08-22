@@ -94,8 +94,9 @@ describe('HealthPay deployment gates (trial-1)', () => {
     cy.get('body', { timeout: 60000 }).should('contain.text', MARKER);
     // A user with i_user + roles resolves rights; an empty menu here means the
     // account is technical-only (see create_interactive_admin).
-    cy.get('nav, [class*="MuiDrawer"], [class*="menu"]', { timeout: 60000 })
-      .should('exist');
+    // Assert on the Arabic admin menu label rather than English chrome: the
+    // app bar renders الإدارة (Administration) for a rights-bearing user.
+    cy.contains('الإدارة', { timeout: 60000 }).should('be.visible');
   });
 
   it('A7 — Users page loads with no GraphQL errors and lists at least the admin', () => {
