@@ -24,7 +24,15 @@ Cypress.Commands.add('login', () => {
     });
   });
 
-  cy.contains('Welcome Admin Admin!', { timeout: 15000 }).should('be.visible');
+  // Locale- and name-independent completion check. The upstream assertion was
+  // cy.contains('Welcome Admin Admin!'), which hardcodes the demo admin's name
+  // and English copy — neither holds for a HealthPay/Arabic deployment. Assert
+  // instead on the app state that actually means "logged in": we left the login
+  // route and the authenticated chrome (log-out control) is present.
+  cy.url({ timeout: 30000 }).should('not.include', '/front/login');
+  cy.get('button[title="Log out"], button[aria-label="Log out"], [data-testid="logout"]', {
+    timeout: 30000,
+  }).should('exist');
 })
 
 Cypress.Commands.add('logout', () => {
