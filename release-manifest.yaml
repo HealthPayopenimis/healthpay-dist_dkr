@@ -42,7 +42,7 @@ components:
   - name: healthpay-fe_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe_js
     ref: hp-main
-    commit: b235e6f97d72405a10e3395e7b7d97e84421493a
+    commit: 25bbbc48ca92385a5f610ebac2a33a9ad85b3222
     role: frontend-assembly
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
@@ -97,12 +97,12 @@ components:
   - name: healthpay-fe-policy_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-policy_js
     ref: hp-main
-    commit: 61ebab2c55a5ee2d9686a315a7419305075f1edc
+    commit: d71a9dca2169feec5af5f4db41a6fe6ed282544d
     role: frontend-module
   - name: healthpay-fe-contribution_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-contribution_js
-    ref: release/26.04
-    commit: 22d317be64662d3b585cfacdd91ff2d433b281f7
+    ref: hp-main
+    commit: 7e9f63c8b63690eb7ed3fd24d4858b911186f0ed
     role: frontend-module
   - name: healthpay-fe-payer_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-payer_js
@@ -217,7 +217,7 @@ components:
   - name: healthpay-fe-language_ar_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-language_ar_js
     ref: main
-    commit: d4b548f5fdb197d23482ef4e7a25aa1479d06470
+    commit: bd57585bb402296c710927d59c793834265eec1d
     role: frontend-module (new, Tier B)
   - name: healthpay-be-egypt_py
     repo: https://github.com/HealthPayopenimis/healthpay-be-egypt_py
