@@ -28,9 +28,14 @@ system-role rows. The previous trial never saw any of this because
 1. As doadmin: `GRANT ALL ON SCHEMA public TO imisuser;` (PostgreSQL 15+ revokes public CREATE)
 2. `./bootstrap.sh` (env: DB_HOST/DB_PORT/DB_NAME/DB_USER/PGPASSWORD)
 3. `docker compose -f compose.healthpay.yml run --rm backend manage migrate`
-   (egypt_localization 0003 seeds the layer='fe' ModuleConfiguration row that
-   sets the National ID field to 14 characters — the frontend reads this over
-   GraphQL at boot, so it must be applied before browser testing.)
+   (egypt_localization 0003/0004 seed the ModuleConfiguration rows that drive
+   National ID handling: layer='fe' for the field length, layer='be' for the
+   validator. Module config is read at app START-UP, so the backend containers
+   must be RESTARTED after this migration or the validator stays inactive.)
+
+   Beware the config-location trap, hit twice in this trial: module settings
+   live in core_ModuleConfiguration, NOT in the assemblies' openimis.json.
+   Setting them in openimis.json is a silent no-op.
 4. Schema audit per `healthpay-be_py/script/schema_audit.py` docstring — must print GREEN
 5. Create the first UI-capable admin (NOT `createsuperuser`, which makes a
    technical-only user with zero rights and an empty menu):
