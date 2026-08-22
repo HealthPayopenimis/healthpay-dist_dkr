@@ -27,33 +27,7 @@ describe('HealthPay deployment gates (trial-1)', () => {
   before(() => {
     cy.fixture('cred').then((c) => {
       cred = c;
-    
-  it('A8 — least-privilege user is denied administration and claim review', () => {
-    // Requires the enrolment officer created by:
-    //   manage create_interactive_user --username hpofficer --role-is-system 1
-    // Seeded matrix: Enrolment Officer = 23 rights, a strict subset of the
-    // administrator's 249; lacks user-administration and claim-review rights.
-    cy.fixture('cred').then((c) => {
-      cy.visit('/front/login');
-      cy.get('input[type="text"]', { timeout: 120000 }).first().clear().type(c.officerUsername);
-      cy.get('input[type="password"]').first().clear().type(c.officerPassword, { log: false });
-      cy.get('button[type="submit"]').click();
-      cy.url({ timeout: 30000 }).should('not.include', '/front/login');
-
-      // Administration menu must NOT be offered to this role
-      cy.contains('الإدارة').should('not.exist');
-
-      // Direct navigation to an admin route must not yield the users list
-      cy.intercept('POST', '**/graphql', (req) => {
-        if (req.body && /\busers\b/.test(JSON.stringify(req.body))) {
-          req.alias = 'usersQueryAsOfficer';
-        }
-      });
-      cy.visit('/front/admin/users', { failOnStatusCode: false });
-      cy.get('body', { timeout: 30000 }).should('not.contain.text', 'hpadmin');
     });
-  });
-});
   });
 
   it('A1 — login page renders the HealthPay marker within the readiness budget', () => {
@@ -160,5 +134,45 @@ describe('HealthPay deployment gates (trial-1)', () => {
       expect(users, 'users payload').to.be.an('object');
       expect(users.totalCount, 'at least the admin is listed').to.be.greaterThan(0);
     });
+  });
+
+  it('A8 — least-privilege user is denied administration and claim review', () => {
+    // Requires the enrolment officer created by:
+    //   manage create_interactive_user --username hpofficer --role-is-system 1
+    // Seeded matrix: Enrolment Officer = 23 rights, a strict subset of the
+    // administrator's 249; lacks user-administration and claim-review rights.
+    cy.fixture('cred').then((c) => {
+      cy.visit('/front/login');
+      cy.get('input[type="text"]', { timeout: 120000 }).first().clear().type(c.officerUsername);
+      cy.get('input[type="password"]').first().clear().type(c.officerPassword, { log: false });
+      cy.get('button[type="submit"]').click();
+      cy.url({ timeout: 30000 }).should('not.include', '/front/login');
+
+      // Administration menu must NOT be offered to this role
+      cy.contains('الإدارة').should('not.exist');
+
+      // Direct navigation to an admin route must not yield the users list
+      cy.visit('/front/admin/users', { failOnStatusCode: false });
+      cy.get('body', { timeout: 30000 }).should('not.contain.text', 'hpadmin');
+    });
+  });
+
+  // Gate inventory. A8 was silently dropped from run 4 because its it() block
+  // had been nested inside the before() hook's callback: Mocha collects tests
+  // during the suite-definition pass, so a test registered at runtime never
+  // appears — no error, no skip, just "Passing: 7" where 8 was expected. This
+  // check makes a vanished gate fail loudly instead of reporting green.
+  it('A9 — gate inventory: every expected gate is registered', function () {
+    const registered = this.test.parent.tests.map((t) => t.title);
+    const expected = ['A1 —', 'A1b —', 'A2 —', 'A3/A4 —', 'A5 —', 'A6 —', 'A7 —', 'A8 —'];
+    expected.forEach((gate) => {
+      expect(
+        registered.some((title) => title.startsWith(gate)),
+        `gate ${gate.replace(' —', '')} is registered`
+      ).to.be.true;
+    });
+    expect(registered.length, 'total registered tests (8 gates + this inventory check)').to.eq(
+      expected.length + 1
+    );
   });
 });
