@@ -42,7 +42,7 @@ components:
   - name: healthpay-fe_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe_js
     ref: hp-main
-    commit: 25bbbc48ca92385a5f610ebac2a33a9ad85b3222
+    commit: 5baae6b3d37d67714bb5bcd8e26206ad5e2a2f07
     role: frontend-assembly
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
@@ -102,7 +102,7 @@ components:
   - name: healthpay-fe-contribution_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-contribution_js
     ref: hp-main
-    commit: 7e9f63c8b63690eb7ed3fd24d4858b911186f0ed
+    commit: b85e3faefe8629aa987f8126440b1aafb382ed35
     role: frontend-module
   - name: healthpay-fe-payer_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-payer_js

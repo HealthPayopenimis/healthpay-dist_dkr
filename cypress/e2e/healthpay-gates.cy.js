@@ -157,6 +157,25 @@ describe('HealthPay deployment gates (trial-1)', () => {
     });
   });
 
+  it('A10 — post-save navigation destinations carry a real UUID', () => {
+    // After the contribution save, redirectToFamily() built
+    // /front/insuree/families/familyOverview/ with an EMPTY segment because the
+    // policy summary projection omitted family{uuid}. The mutation had
+    // succeeded, so nothing failed loudly — the operator simply landed on a
+    // blank page. Any route built from an entity uuid is asserted to contain a
+    // non-empty uuid-shaped segment.
+    const UUID_SEGMENT = /\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(\/|$)/i;
+    cy.login();
+    cy.visit('/front/insuree/families');
+    cy.get('body', { timeout: 60000 }).should('be.visible');
+    // Open the first family from the searcher and assert the destination.
+    cy.get('table tbody tr', { timeout: 60000 }).first().click();
+    cy.url({ timeout: 30000 }).should((url) => {
+      expect(url, 'family overview route carries a uuid').to.match(UUID_SEGMENT);
+      expect(url, 'no empty trailing route segment').not.to.match(/\/\/|\/$/);
+    });
+  });
+
   // Gate inventory. A8 was silently dropped from run 4 because its it() block
   // had been nested inside the before() hook's callback: Mocha collects tests
   // during the suite-definition pass, so a test registered at runtime never
@@ -164,7 +183,7 @@ describe('HealthPay deployment gates (trial-1)', () => {
   // check makes a vanished gate fail loudly instead of reporting green.
   it('A9 — gate inventory: every expected gate is registered', function () {
     const registered = this.test.parent.tests.map((t) => t.title);
-    const expected = ['A1 —', 'A1b —', 'A2 —', 'A3/A4 —', 'A5 —', 'A6 —', 'A7 —', 'A8 —'];
+    const expected = ['A1 —', 'A1b —', 'A2 —', 'A3/A4 —', 'A5 —', 'A6 —', 'A7 —', 'A8 —', 'A10 —'];
     expected.forEach((gate) => {
       expect(
         registered.some((title) => title.startsWith(gate)),
