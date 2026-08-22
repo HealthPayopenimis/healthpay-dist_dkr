@@ -39,3 +39,11 @@ system-role rows. The previous trial never saw any of this because
    `HP_USER_PASSWORD=... ... manage create_interactive_user --username hpofficer \
         --role-is-system 1 --last-name Officer --other-names Enrolment`
    Expect `role: Enrolment Officer | rights resolved: 23`.
+   **Geographic scope is required**: location pickers populate from the user's
+   assigned districts, so add `--districts EG-01-D01` (and `--officer
+   --officer-code HPOFF01 --officer-villages EG-01-D01-W01-V01` for enrolment
+   personas, since policies attach to an Officer). Without districts the region
+   picker is empty and no family can be created.
+7. Re-run `04_sequences.sql` if officer provisioning fails on a NOT NULL primary
+   key: it now scans for legacy identity columns missing their `nextval` default
+   and repairs them idempotently.
