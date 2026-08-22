@@ -1,4 +1,6 @@
 {
   "username": "hpadmin",
-  "password": "REPLACE_ME_DO_NOT_COMMIT_REAL_CREDENTIALS"
+  "password": "REPLACE_ME_DO_NOT_COMMIT_REAL_CREDENTIALS",
+  "officerUsername": "hpofficer",
+  "officerPassword": "REPLACE_ME_DO_NOT_COMMIT_REAL_CREDENTIALS"
 }

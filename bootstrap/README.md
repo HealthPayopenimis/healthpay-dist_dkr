@@ -32,5 +32,10 @@ system-role rows. The previous trial never saw any of this because
 5. Create the first UI-capable admin (NOT `createsuperuser`, which makes a
    technical-only user with zero rights and an empty menu):
    `HP_ADMIN_PASSWORD=... docker compose -f compose.healthpay.yml run --rm backend \
-        manage create_interactive_admin --username <user> --email <addr>`
+        manage create_interactive_user --username <user> --email <addr>`
+   (`create_interactive_admin` remains as a deprecated alias.)
    It must report `rights resolved: 249` (or non-zero); it errors out if not.
+6. For gate A8 (role isolation), create a least-privilege user:
+   `HP_USER_PASSWORD=... ... manage create_interactive_user --username hpofficer \
+        --role-is-system 1 --last-name Officer --other-names Enrolment`
+   Expect `role: Enrolment Officer | rights resolved: 23`.

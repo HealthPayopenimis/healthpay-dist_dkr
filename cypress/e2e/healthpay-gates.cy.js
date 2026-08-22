@@ -27,7 +27,33 @@ describe('HealthPay deployment gates (trial-1)', () => {
   before(() => {
     cy.fixture('cred').then((c) => {
       cred = c;
+    
+  it('A8 — least-privilege user is denied administration and claim review', () => {
+    // Requires the enrolment officer created by:
+    //   manage create_interactive_user --username hpofficer --role-is-system 1
+    // Seeded matrix: Enrolment Officer = 23 rights, a strict subset of the
+    // administrator's 249; lacks user-administration and claim-review rights.
+    cy.fixture('cred').then((c) => {
+      cy.visit('/front/login');
+      cy.get('input[type="text"]', { timeout: 120000 }).first().clear().type(c.officerUsername);
+      cy.get('input[type="password"]').first().clear().type(c.officerPassword, { log: false });
+      cy.get('button[type="submit"]').click();
+      cy.url({ timeout: 30000 }).should('not.include', '/front/login');
+
+      // Administration menu must NOT be offered to this role
+      cy.contains('الإدارة').should('not.exist');
+
+      // Direct navigation to an admin route must not yield the users list
+      cy.intercept('POST', '**/graphql', (req) => {
+        if (req.body && /\busers\b/.test(JSON.stringify(req.body))) {
+          req.alias = 'usersQueryAsOfficer';
+        }
+      });
+      cy.visit('/front/admin/users', { failOnStatusCode: false });
+      cy.get('body', { timeout: 30000 }).should('not.contain.text', 'hpadmin');
     });
+  });
+});
   });
 
   it('A1 — login page renders the HealthPay marker within the readiness budget', () => {
@@ -35,6 +61,8 @@ describe('HealthPay deployment gates (trial-1)', () => {
     // Bounded readiness probe: the modular FE loads ~40 chunks sequentially and
     // shows a blank shell meanwhile (incident §3.5). Budget is 120s per plan v3.
     cy.get('body', { timeout: 120000 }).should('contain.text', MARKER);
+    // Route-derived document title comes from fe-core's Helmet titleTemplate
+    // (a hardcoded literal, not a translation key) — rebranded at source.
     cy.title().should('contain', MARKER);
     cy.get('input[type="password"]', { timeout: 120000 }).should('be.visible');
   });
@@ -76,9 +104,23 @@ describe('HealthPay deployment gates (trial-1)', () => {
     // Contract pinned from the trial: _check_csrf_token reads
     // request.session['csrftoken'], which only exists after getCsrfToken has
     // run — so the app's own order is tokenAuth -> getCsrfToken -> queries.
-    cy.intercept('GET', '**/api/core/users/current_user/').as('currentUser');
+    //
+    // The app calls current_user TWICE: once on boot before credentials exist
+    // (correctly 401), then again after tokenAuth (200). Registering the
+    // intercept before login and waiting once resolves on the boot 401 and
+    // asserts against the wrong call. Log in first, then register the
+    // intercept and reload so only authenticated calls can match.
     cy.login();
-    cy.wait('@currentUser').its('response.statusCode').should('eq', 200);
+    cy.intercept('GET', '**/api/core/users/current_user/').as('currentUserAuthed');
+    cy.reload();
+    cy.wait('@currentUserAuthed').then(({ request, response }) => {
+      expect(response.statusCode, 'authenticated current_user').to.eq(200);
+      // Bearer prefix contract (backend: JWT_AUTH_HEADER_PREFIX = "Bearer")
+      const auth = request.headers.authorization;
+      if (auth) {
+        expect(auth, 'auth header uses Bearer, not JWT').to.match(/^Bearer /);
+      }
+    });
   });
 
   it('A5 — dashboard renders with HealthPay branding after login', () => {
