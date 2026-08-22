@@ -12,6 +12,8 @@ database_strategy: legacy-bootstrap-then-real-migrations   # AMENDED at Gate I4 
 #   and django_migrations as schema evidence — script/schema_audit.py remains sole arbiter.
 compose_authoritative: compose.healthpay.yml   # stock compose.yml set is NOT used at trial-1 (local db + auto-migrations + opensearch contradict Slice 1)
 schema_audit: healthpay-be_py/script/schema_audit.py   # Gate I4 evaluator; run per its header docstring
+gate_m_verifier: script/verify_gate_m.py   # checks manifest <-> assembly configs <-> remote refs
+#   (the orphan-pin class that went RED at rev6 and rev11: an edit updating one side only)
 browser_gates: cypress/e2e/healthpay-gates.cy.js   # A1-A7 against the COMPILED BUNDLE (plan v3 §5:
 #   API-level evidence is insufficient for A2 — the previous trial's defect was a bundle that never
 #   requested  while the backend returned it correctly).
@@ -40,7 +42,7 @@ components:
   - name: healthpay-fe_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe_js
     ref: hp-main
-    commit: 6b1ac842522571931c007271bc7c87f3ab9a234c
+    commit: db2b7e14830938d4ed095e4d0994091a651c849b
     role: frontend-assembly
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
