@@ -168,11 +168,13 @@ describe('HealthPay deployment gates (trial-1)', () => {
     cy.login();
     cy.visit('/front/insuree/families');
     cy.get('body', { timeout: 60000 }).should('be.visible');
-    // Open the first family from the searcher and assert the destination.
-    cy.get('table tbody tr', { timeout: 60000 }).first().click();
+    // FamiliesPage wires navigation through FamilySearcher.onDoubleClick;
+    // a single row click only selects the row and must not be treated as navigation.
+    cy.get('table tbody tr', { timeout: 60000 }).first().dblclick();
     cy.url({ timeout: 30000 }).should((url) => {
-      expect(url, 'family overview route carries a uuid').to.match(UUID_SEGMENT);
-      expect(url, 'no empty trailing route segment').not.to.match(/\/\/|\/$/);
+      const pathname = new URL(url).pathname;
+      expect(pathname, 'family overview route carries a uuid').to.match(UUID_SEGMENT);
+      expect(pathname, 'no empty trailing route segment').not.to.match(/\/\/|\/$/);
     });
   });
 

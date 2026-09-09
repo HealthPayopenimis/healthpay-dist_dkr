@@ -16,7 +16,8 @@ gate_m_verifier: script/verify_gate_m.py   # checks manifest <-> assembly config
 public_locale_verifier: script/verify_public_locale.py   # cookie -> Arabic default -> browser -> English; authenticated profile unchanged
 batch_launcher_verifier: script/verify_batch_launcher.py   # localized tooltip/accessibility with existing enablement and action
 #   (the orphan-pin class that went RED at rev6 and rev11: an edit updating one side only)
-browser_gates: cypress/e2e/healthpay-gates.cy.js   # A1-A7 against the COMPILED BUNDLE (plan v3 §5:
+browser_gates: cypress/e2e/healthpay-gates.cy.js   # A1-A10 against the COMPILED BUNDLE (plan v3 §5:
+browser_qa_fix_v1: cypress/e2e/qa-fix-v1-authenticated.cy.js   # 80-key authenticated QA route matrix
 #   API-level evidence is insufficient for A2 — the previous trial's defect was a bundle that never
 #   requested  while the backend returned it correctly).
 component_count: 37   # authoritative (earlier commit message said 38 in error)
@@ -44,7 +45,7 @@ components:
   - name: healthpay-fe_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe_js
     ref: hp-main
-    commit: 4674daec1c825c82a31082cec2e6482355874d86
+    commit: 72ef14d1be2caebda14317196c6eaa0606a97b32
     role: frontend-assembly
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
@@ -219,7 +220,7 @@ components:
   - name: healthpay-fe-language_ar_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-language_ar_js
     ref: main
-    commit: 28484081bf6e6c1d47847d86aadd0000bd9e84ac
+    commit: 3eee3a48d6a8521b409032ce4b008b3ff3523bd7
     role: frontend-module (new, Tier B)
   - name: healthpay-be-egypt_py
     repo: https://github.com/HealthPayopenimis/healthpay-be-egypt_py
