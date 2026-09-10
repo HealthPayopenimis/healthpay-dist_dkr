@@ -52,6 +52,11 @@ def main():
         values=json.loads(f.read_text()); values['product.lumpSum']='Lump Sum'; f.write_text(json.dumps(values,indent=2)+'\n')
         expect(run(location,prod2,arabic,repos),1,"English unit/help contract mismatch","unit-label-negative-control")
 
+        prod3=tmp/"product-aria"; shutil.copytree(product,prod3,ignore=shutil.ignore_patterns('.git','node_modules','build'))
+        f=prod3/"src/components/ProductForm/DeductiblesCeilingsTabForm.js"
+        text=f.read_text(); text=text.replace('"aria-label": inputAriaLabel(', '"aria-label": removedAriaLabel(', 1); f.write_text(text)
+        expect(run(location,prod3,arabic,repos),1,"not all 23 deductible/ceiling","numeric-aria-negative-control")
+
         ar=tmp/"arabic"; shutil.copytree(arabic,ar,ignore=shutil.ignore_patterns('.git','node_modules','build'))
         f=ar/"src/translations/ar.json"
         values=json.loads(f.read_text()); del values['claim.claimedDate']; f.write_text(json.dumps(values,ensure_ascii=False,indent=2)+'\n')

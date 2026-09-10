@@ -51,6 +51,13 @@ def main():
     require('label={formatMessage("conversionProduct")}' in panel, "conversion-program label missing")
     require('helperText={formatMessage("conversionProductHelp")}' in panel, "conversion-program explanation missing")
 
+    limits = (product / "src/components/ProductForm/DeductiblesCeilingsTabForm.js").read_text(encoding="utf-8")
+    require("const inputAriaLabel" in limits, "product table ARIA-label helper missing")
+    require(
+        limits.count('"aria-label": inputAriaLabel(') == 23,
+        "not all 23 deductible/ceiling NumberInputs have localized ARIA labels",
+    )
+
     en = flatten(json.loads((product / "src/translations/en.json").read_text(encoding="utf-8")))
     ar = flatten(json.loads((arabic / "src/translations/ar.json").read_text(encoding="utf-8")))
     required_en = {
@@ -114,6 +121,7 @@ def main():
     print("location_code_max=50")
     print("v2_arabic_contract=773/773")
     print(f"product_unit_contract={len(required_en)}/{len(required_en)}")
+    print("product_numeric_aria_labels=23/23")
 
 
 if __name__ == "__main__":
