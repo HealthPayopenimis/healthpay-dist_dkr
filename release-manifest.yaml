@@ -15,9 +15,11 @@ schema_audit: healthpay-be_py/script/schema_audit.py   # Gate I4 evaluator; run 
 gate_m_verifier: script/verify_gate_m.py   # checks manifest <-> assembly configs <-> remote refs
 public_locale_verifier: script/verify_public_locale.py   # cookie -> Arabic default -> browser -> English; authenticated profile unchanged
 batch_launcher_verifier: script/verify_batch_launcher.py   # localized tooltip/accessibility with existing enablement and action
+qa_fix_v2_source_verifier: script/verify_qa_fix_v2_source.py   # 50-char location code, product units/help, 773-key Arabic contract
 #   (the orphan-pin class that went RED at rev6 and rev11: an edit updating one side only)
 browser_gates: cypress/e2e/healthpay-gates.cy.js   # A1-A10 against the COMPILED BUNDLE (plan v3 §5:
 browser_qa_fix_v1: cypress/e2e/qa-fix-v1-authenticated.cy.js   # 80-key authenticated QA route matrix
+browser_qa_fix_v2: cypress/e2e/qa-fix-v2-readonly.cy.js   # 22-route, mutation-free V2 operational/raw-key matrix
 #   API-level evidence is insufficient for A2 — the previous trial's defect was a bundle that never
 #   requested  while the backend returned it correctly).
 component_count: 37   # authoritative (earlier commit message said 38 in error)
@@ -45,7 +47,7 @@ components:
   - name: healthpay-fe_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe_js
     ref: hp-main
-    commit: 72ef14d1be2caebda14317196c6eaa0606a97b32
+    commit: b13f38e246253a8bb6886bdbe1c52e93a40df9c6
     role: frontend-assembly
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
@@ -74,8 +76,8 @@ components:
     role: frontend-module
   - name: healthpay-fe-location_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-location_js
-    ref: release/26.04
-    commit: 021db2e7f53068be214bc3b3539a3a0c7a477323
+    ref: hp-main
+    commit: 524759153dd1f65f6b33a2326ac5828c9e6c5a6e
     role: frontend-module
   - name: healthpay-fe-insuree_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-insuree_js
@@ -84,8 +86,8 @@ components:
     role: frontend-module
   - name: healthpay-fe-product_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-product_js
-    ref: release/26.04
-    commit: 6ed3a323bff25e9a56519475d4e38f9eef9f180a
+    ref: hp-main
+    commit: 35dc8421ceb915b49d22bcdc44cb21906d97663c
     role: frontend-module
   - name: healthpay-fe-medical_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-medical_js
@@ -220,7 +222,7 @@ components:
   - name: healthpay-fe-language_ar_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-language_ar_js
     ref: main
-    commit: 3eee3a48d6a8521b409032ce4b008b3ff3523bd7
+    commit: 14f58f8a355fdee84ac70fb7f28ca53feb49aabf
     role: frontend-module (new, Tier B)
   - name: healthpay-be-egypt_py
     repo: https://github.com/HealthPayopenimis/healthpay-be-egypt_py
