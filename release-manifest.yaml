@@ -16,10 +16,13 @@ gate_m_verifier: script/verify_gate_m.py   # checks manifest <-> assembly config
 public_locale_verifier: script/verify_public_locale.py   # cookie -> Arabic default -> browser -> English; authenticated profile unchanged
 batch_launcher_verifier: script/verify_batch_launcher.py   # localized tooltip/accessibility with existing enablement and action
 qa_fix_v2_source_verifier: script/verify_qa_fix_v2_source.py   # 50-char location code, product units/help, 773-key Arabic contract
+policy_renewal_null_premium_verifier: script/verify_policy_renewal_null_premium.py   # null amount totals as zero while preserving report rows
 #   (the orphan-pin class that went RED at rev6 and rev11: an edit updating one side only)
 browser_gates: cypress/e2e/healthpay-gates.cy.js   # A1-A10 against the COMPILED BUNDLE (plan v3 §5:
 browser_qa_fix_v1: cypress/e2e/qa-fix-v1-authenticated.cy.js   # 80-key authenticated QA route matrix
 browser_qa_fix_v2: cypress/e2e/qa-fix-v2-readonly.cy.js   # 22-route, mutation-free V2 operational/raw-key matrix
+browser_qa_fix_v2_reports: cypress/e2e/qa-fix-v2-reports.cy.js   # both reports return without 500/login redirect; session remains valid
+browser_qa_fix_v2_product: cypress/e2e/qa-fix-v2-product-live.cy.js   # tab-scoped units/help and conditional runtime ARIA labels
 #   API-level evidence is insufficient for A2 — the previous trial's defect was a bundle that never
 #   requested  while the backend returned it correctly).
 component_count: 37   # authoritative (earlier commit message said 38 in error)
@@ -52,7 +55,7 @@ components:
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
     ref: hp-main
-    commit: 02723f67e487201254030f6b554c4abe13337b0e
+    commit: 5ee5270c77671468ec0b2b10f6963605ffeb4238
     role: backend-assembly
   - name: healthpay-dist_dkr
     repo: https://github.com/HealthPayopenimis/healthpay-dist_dkr
@@ -171,8 +174,8 @@ components:
     role: backend-module
   - name: healthpay-be-policy_py
     repo: https://github.com/HealthPayopenimis/healthpay-be-policy_py
-    ref: release/26.04
-    commit: 492614e60f163dad0315f9b0a62b97471f7a4849
+    ref: hp-main
+    commit: a5f1e7d8212b736025f86f771e886c01fd55f5db
     role: backend-module
   - name: healthpay-be-contribution_py
     repo: https://github.com/HealthPayopenimis/healthpay-be-contribution_py
