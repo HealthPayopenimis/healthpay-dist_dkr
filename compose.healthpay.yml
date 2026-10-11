@@ -44,6 +44,8 @@ x-api: &default-api
     - DJANGO_MIGRATE=False
     - DJANGO_LOG_LEVEL=${DJANGO_LOG_LEVEL:-WARNING}
     - DJANGO_LOG_HANDLER=console
+    - HEALTHPAY_DEPLOYMENT_ENV=${HEALTHPAY_DEPLOYMENT_ENV:-production}
+    - HEALTHPAY_QA_AUTHORIZATION=${HEALTHPAY_QA_AUTHORIZATION:-}
   volumes:
     - photos:/openimis-be/openIMIS/images/insurees
   networks:

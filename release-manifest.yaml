@@ -49,13 +49,13 @@ sourcing_allowlist:
 components:
   - name: healthpay-fe_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe_js
-    ref: hp-main
-    commit: e5c0f7ada821e954795af08c58b6581afb6cee40
+    ref: issue36-37/qa-release
+    commit: 9f93732b8d7dca742e9307db2f34ac5282a875a6
     role: frontend-assembly
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
-    ref: hp-main
-    commit: 97dad91f23a86553397924fa9257d504824e0847
+    ref: issue36-37/qa-release
+    commit: 06c7275a7beee82f662a3bb622042b48d71e524e
     role: backend-assembly
   - name: healthpay-dist_dkr
     repo: https://github.com/HealthPayopenimis/healthpay-dist_dkr
@@ -79,13 +79,13 @@ components:
     role: frontend-module
   - name: healthpay-fe-location_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-location_js
-    ref: hp-main
-    commit: 524759153dd1f65f6b33a2326ac5828c9e6c5a6e
+    ref: issue37/optional-ward
+    commit: b8676be78045673b2e4c9b5357b6aa89f74d8777
     role: frontend-module
   - name: healthpay-fe-insuree_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-insuree_js
-    ref: hp-main
-    commit: f0afe82e2f749550c946aa82a8a5b1a31ee81489
+    ref: issue36/duplicate-national-id
+    commit: bab4e474ac9f63c1316bd57da18c83500ca4f85f
     role: frontend-module
   - name: healthpay-fe-product_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-product_js
@@ -149,8 +149,8 @@ components:
     role: backend-module
   - name: healthpay-be-insuree_py
     repo: https://github.com/HealthPayopenimis/healthpay-be-insuree_py
-    ref: release/26.04
-    commit: ebdb761f9412b926ef712c7e9578b13f466261f8
+    ref: issue36/duplicate-national-id
+    commit: 33dac34ccf35fca65d78442bf48d35639b44a156
     role: backend-module
   - name: healthpay-be-location_py
     repo: https://github.com/HealthPayopenimis/healthpay-be-location_py
@@ -224,11 +224,11 @@ components:
     role: backend-module
   - name: healthpay-fe-language_ar_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-language_ar_js
-    ref: main
-    commit: 14f58f8a355fdee84ac70fb7f28ca53feb49aabf
+    ref: issue37/optional-ward-label
+    commit: f9b609365399aeae4c77a8255f02b6803cc231b1
     role: frontend-module (new, Tier B)
   - name: healthpay-be-egypt_py
     repo: https://github.com/HealthPayopenimis/healthpay-be-egypt_py
-    ref: main
-    commit: 974a406891af918104f885d3e4e622196caf94c8
+    ref: issue37/codab-qa-import
+    commit: afb70ada64def8132388845933ad4d2491784610
     role: backend-module (new, Tier B)
