@@ -13,14 +13,17 @@ const VILLAGE_LABEL_ARABIC = 'الشياخة / القرية';
 const TEST_TITLES = [
   'duplicate ScenarioA head number is rejected on the new family form',
   'malformed 13-digit number is rejected by the real validity query',
-  'editing the existing ScenarioA head passes its own UUID to validity and is accepted',
+  'opening the existing ScenarioA head passes its own UUID to validity and is accepted',
   'new family COD-AB location leaves the optional ward blank and selects the village',
   'legacy location hierarchy selects and clear-reselects every control',
   'registers exactly the complete QA-V3 readonly inventory',
 ];
 
 function fieldRoot(label) {
-  return cy.contains('label', label).filter(':visible').first().closest('.MuiFormControl-root');
+  return cy.get('label').filter((_, el) =>
+    Cypress.$(el).is(':visible') && el.textContent.includes(label) &&
+    Cypress.$(el).closest('.MuiFormControl-root').find('input:not(:disabled)').length > 0
+  ).first().closest('.MuiFormControl-root');
 }
 
 function inputFor(label) {
@@ -51,8 +54,9 @@ function enterNumber(value) {
 }
 
 function selectSuggestion(label, code) {
-  const root = fieldRoot(label);
-  root.find('input').first().click().clear().type(code, { log: false });
+  inputFor(label).should('be.enabled').click();
+  inputFor(label).clear();
+  inputFor(label).type(code, { log: false, delay: 0 });
   cy.contains('li', new RegExp(`\\b${Cypress._.escapeRegExp(code)}\\b`), { timeout: 30000 })
     .filter(':visible')
     .first()
@@ -134,14 +138,15 @@ describe('HealthPay QA-V3 — readonly browser contract', () => {
       cy.get('#root', { timeout: 60000 }).should('be.visible');
       inputFor('الرقم القومي').should('have.value', SCENARIO_A_CHF_ID);
 
-      // Re-enter the same value so the real edit-path validity query is observed.
-      enterNumber(SCENARIO_A_CHF_ID);
-      waitForNumberValidity('editValidity').then(({ request }) => {
+      // The real edit-mode input validates on mount. Observe it without changing
+      // frozen data or accidentally targeting the disabled family-summary copy.
+      waitForNumberValidity('editValidity').then(({ request, response }) => {
         expect(request.body.query).to.include('insureeNumberValidity');
         expect(request.body.variables).to.deep.include({
           insuranceNumber: SCENARIO_A_CHF_ID,
           insureeUuid: uuid,
         });
+        expect(response.body.data.insureeNumberValidity.isValid).to.eq(true);
       });
       fieldRoot('الرقم القومي').invoke('text').should('not.match', DUPLICATE_ARABIC);
       cy.location('pathname').should('include', `/front/insuree/insurees/insuree/${uuid}`);
