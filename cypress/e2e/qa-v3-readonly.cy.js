@@ -55,8 +55,8 @@ function enterNumber(value) {
 
 function selectSuggestion(label, code) {
   fieldRoot(label).then(($root) => {
-    if ($root.find('.MuiSelect-select').length) {
-      cy.wrap($root).find('.MuiSelect-select').click();
+    if ($root.find('input[aria-hidden="true"]').length) {
+      cy.wrap($root).find('[role="button"]').first().click();
     } else {
       inputFor(label).should('be.enabled').click();
       inputFor(label).clear();
