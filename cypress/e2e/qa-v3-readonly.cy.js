@@ -67,15 +67,16 @@ function clearPicker(label) {
   const root = fieldRoot(label);
   // LocationPicker exposes the Material-UI clear control; AutoSuggestion's source
   // renders the same trailing IconButton without a translated aria-label.
-  root.find('button').filter(':visible').last().click();
+  root.find('button.MuiAutocomplete-clearIndicator, button[aria-label="clear"]').first().click({ force: true });
 }
 
 function getScenarioAUuid() {
   // This is deliberately a browser cy.request with no Authorization header or
   // token logging. The authenticated browser session supplies the server context.
-  return cy.request({
+  return cy.window({ log: false }).then((win) => cy.request({
     method: 'POST',
     url: '/api/graphql',
+    headers: { 'X-CSRFToken': win.localStorage.getItem('csrfToken'), 'X-Requested-With': 'XMLHttpRequest' },
     body: {
       query: `query ScenarioAHeadUuid {
         insurees(chfId: "${SCENARIO_A_CHF_ID}", ignoreLocation: true, first: 1) {
@@ -84,7 +85,7 @@ function getScenarioAUuid() {
       }`,
     },
     log: false,
-  }).then((response) => {
+  })).then((response) => {
     expect(response.status, 'authenticated UUID lookup status').to.eq(200);
     expect(response.body?.errors, 'authenticated UUID lookup GraphQL errors').to.not.exist;
     const uuid = response.body?.data?.insurees?.edges?.[0]?.node?.uuid;
