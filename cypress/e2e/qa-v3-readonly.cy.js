@@ -54,13 +54,17 @@ function enterNumber(value) {
 }
 
 function selectSuggestion(label, code) {
-  inputFor(label).should('be.enabled').click();
-  inputFor(label).clear();
-  inputFor(label).type(code, { log: false, delay: 0 });
-  cy.contains('li', new RegExp(`\\b${Cypress._.escapeRegExp(code)}\\b`), { timeout: 30000 })
-    .filter(':visible')
-    .first()
-    .click();
+  fieldRoot(label).then(($root) => {
+    if ($root.find('.MuiSelect-select').length) {
+      cy.wrap($root).find('.MuiSelect-select').click();
+    } else {
+      inputFor(label).should('be.enabled').click();
+      inputFor(label).clear();
+      inputFor(label).type(code, { log: false, delay: 0 });
+    }
+  });
+  cy.contains('li', new RegExp(`^${Cypress._.escapeRegExp(code)}(?:\\s|$)`), { timeout: 30000 })
+    .should('be.visible').click();
 }
 
 function selectedValue(label) {
