@@ -1,10 +1,10 @@
 function root(label){return cy.get('label').filter((_,e)=>e.textContent.replace(/\*/g,'').replace(/\s+/g,' ').trim()===label).first().closest('.MuiFormControl-root');}
 describe('TFAC claim entry context — read only',()=>{
  it('observes supported admin selection and visible Add Claim context',()=>{
-  cy.login();cy.visit('/front/claim/healthFacilities');
+  cy.login();cy.intercept('POST','**/graphql',req=>{if(String(req.body?.query||'').includes('query ClaimAdminPicker'))req.alias='tfacAdmins';});cy.visit('/front/claim/healthFacilities');
   cy.fixture('cred',{log:false}).then(c=>{
    Cypress.env('qaActor',c.username);
-   if(c.username==='TFACCLM')root('مسؤول المطالبات').find('input').first().invoke('val').should('include','TFACCLM');
+   if(c.username==='TFACCLM')cy.wait('@tfacAdmins').then(({response})=>{expect(response.statusCode).eq(200);expect(response.body.errors).not.exist;expect(response.body.data.claimAdmins.edges.some(e=>e.node.code==='TFACCLM')).eq(true);});
    else{root('مسؤول المطالبات').find('input:not(:disabled)').first().click().clear().type('TESTTFAC',{log:false,delay:0});cy.contains('li',/^TESTTFAC\s/).should('be.visible').click();}
   });
   cy.screenshot('tfac-claim-context-list',{capture:'viewport'});
