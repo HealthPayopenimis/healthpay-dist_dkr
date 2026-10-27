@@ -313,6 +313,7 @@ describe('HealthPay Issue38 — TFAC claim create and submit', () => {
     screenshot('new-form-context');
 
     assertReadonlyContext();
+    cy.get('#root').then($root=>{const fields=[];$root.find('label').each((_,e)=>{const c=Cypress.$(e).closest('.MuiFormControl-root');fields.push({label:e.textContent,inputs:c.find('input,textarea').map((_,x)=>({tag:x.tagName,value:x.value,disabled:x.disabled,type:x.type,placeholder:x.placeholder})).get()});});cy.writeFile('cypress/evidence/tfac-claim-form-controls.json',{fields},{log:false});});
 
     const codeInput = fieldRoot('رقم المطالبة').find('input').first();
     codeInput.should('be.visible').invoke('attr', 'maxlength').then((maxLength) => {
