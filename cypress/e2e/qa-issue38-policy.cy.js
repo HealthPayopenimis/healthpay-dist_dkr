@@ -43,7 +43,8 @@ function chooseVisibleOption(optionLabels) {
 function chooseAutocomplete(labels, search, optionPrefix) {
   labelRoot(labels).then(($root) => {
     const input = $root.find('input:not(:disabled)').first();
-    cy.wrap(input).click().clear().type(search, { log: false, delay: 0 });
+    if(input.attr('aria-hidden') === 'true') cy.wrap($root).find('[role="button"]').first().click();
+    else cy.wrap(input).click().clear().type(search, { log: false, delay: 0 });
   });
   cy.get('li').filter((_, element) => {
     const text = normalized(element.textContent);
@@ -293,7 +294,10 @@ describe('TFAC policy and contribution UI creation', () => {
           return;
         }
 
-        cy.visit(`/front/policy/policy/_NEW_/${familyUuid}`);
+        cy.visit(`/front/insuree/families/familyOverview/${familyUuid}`);
+        cy.contains('button', /^إضافة وثيقة$/).should('be.visible').click();
+        cy.location('pathname').should('include', '/front/policy/policy/_NEW_/');
+        setToday(['تاريخ الاشتراك','Enrollment Date']);
         labelRoot(['برنامج التغطية', 'Product']).should('be.visible');
         chooseAutocomplete(['برنامج التغطية', 'Product'], PRODUCT_CODE, PRODUCT_CODE);
         labelRoot(['مسؤول التسجيل', 'Officer']).should('be.visible');
