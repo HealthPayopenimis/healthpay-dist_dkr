@@ -3,13 +3,14 @@ Never touches a product that existed in the prechange baseline; no application-c
 """
 import argparse
 import json
+import sys
 from pathlib import Path
 from seed_tfac_api import Runner, PRODUCT, numeric_id
 from fixture_policy import require_match
 
 p=argparse.ArgumentParser();p.add_argument('--authorization-sha',required=True);p.add_argument('--output',required=True);p.add_argument('--preexisting-baseline',required=True);p.add_argument('--apply',action='store_true');a=p.parse_args()
 r=Runner(a)
-row=r.lookup('products','code','TQAC001',PRODUCT)
+row=r.lookup('products','code','TQAC001',PRODUCT,history=False)
 if not row:raise RuntimeError('New QA product absent')
 old=json.loads(Path(a.preexisting_baseline).read_text())
 if str(numeric_id(row['id'])) in old['product.Product']:
@@ -19,9 +20,18 @@ if row['code']!='TQAC001' or row['name']!=r.fixture['product']['name']:
 payload={**r.fixture['product'],'uuid':row['uuid']}
 service=r.lookup('medicalServices','code','TSVC01','id uuid code name price')
 payload['services']=[{'serviceUuid':service['uuid'],**r.fixture['serviceBenefit']}]
+try:
+    require_match(row,r.fixture['product'])
+    require_match(row['services']['edges'][0]['node'],r.fixture['serviceBenefit'])
+    require_match(row['services']['edges'][0]['node']['service'],{'uuid':service['uuid']})
+except (RuntimeError,IndexError):
+    pass
+else:
+    r.events.append({'operation':'EXACT_MATCH_SKIP','entity':'new QA product'});r.records['product']=row;r.save()
+    print('NEW_QA_PRODUCT_ALREADY_EXACT_NO_WRITE');sys.exit(0)
 if a.apply:
     r.create('updateProduct','UpdateProductMutationInput',payload,'configure newly-created TQAC001 ceiling type')
-    final=r.lookup('products','code','TQAC001',PRODUCT)
+    final=r.lookup('products','code','TQAC001',PRODUCT,history=False)
     require_match(final,r.fixture['product'])
     require_match(final['services']['edges'][0]['node'],r.fixture['serviceBenefit'])
     r.records['product']=final;r.save();print('NEW_QA_PRODUCT_CONFIGURED_AND_READBACK_PASS')
