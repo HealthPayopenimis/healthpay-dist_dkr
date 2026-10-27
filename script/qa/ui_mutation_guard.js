@@ -1,7 +1,7 @@
 function guardMutation(query, variables, records) {
   const q=String(query||'');
   if(!/\bmutation\b/.test(q))return 'READ';
-  if(/\b(tokenAuth|getCsrfToken|refreshToken|verifyToken|tokenRefresh)\s*\(/.test(q))return 'AUTH';
+  if(/\b(tokenAuth|getCsrfToken|refreshToken|verifyToken|tokenRefresh)\s*(?:\(|\{)/.test(q))return 'AUTH';
   const m=q.match(/\b(createFamily|createPolicy|createPremium|createClaim|updateClaim|submitClaims|selectClaimsForFeedback|deliverClaimFeedback|selectClaimsForReview|saveClaimReview|deliverClaimsReview|processClaims)\s*\(/);
   if(!m)throw new Error('TFAC guard denied unapproved mutation');
   const op=m[1], all=q+' '+JSON.stringify(variables||{});

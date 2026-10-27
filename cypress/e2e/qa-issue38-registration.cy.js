@@ -1,4 +1,3 @@
-import '../support/qa-issue38';
 function root(label){return cy.get('label').filter((_,e)=>Cypress.$(e).is(':visible')&&e.textContent.includes(label)&&Cypress.$(e).closest('.MuiFormControl-root').find('input:not(:disabled)').length).first().closest('.MuiFormControl-root');}
 function type(label,value){root(label).find('input').first().clear().type(value,{log:false,delay:0});}
 function pick(label,code){
