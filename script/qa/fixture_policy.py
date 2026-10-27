@@ -1,4 +1,5 @@
 """Pure guard functions; these never make API or database calls."""
+from datetime import date, datetime, time
 AUTH_SHA = '3acfe7c2c14ff703ac0e0135d0ad18821b33eede5e37a599412dd25700ab0ca3'
 CODES = ['TFAC001','TFAC002','TFAC003','TFAC004','TFAC005']
 
@@ -35,7 +36,17 @@ def validate_fixture(fixture):
         raise RuntimeError('Non-login administrator policy denied')
 
 def require_match(actual, expected):
-    if any(actual.get(k) != value for k, value in expected.items()):
+    for key, value in expected.items():
+        observed=actual.get(key)
+        if observed == value:
+            continue
+        if key in ('dateFrom','dateTo') and isinstance(observed,str) and isinstance(value,str):
+            try:
+                parsed=datetime.fromisoformat(observed)
+                if parsed.time()==time(0) and parsed.date()==date.fromisoformat(value):
+                    continue
+            except ValueError:
+                pass
         raise RuntimeError('Existing code/name conflicts with fixture; no update allowed')
 
 def mutation_complete(log):

@@ -15,6 +15,7 @@ import time
 import uuid
 from qa_api import QAApi
 from fixture_policy import AUTH_SHA, require_qa, validate_fixture, require_match, mutation_complete
+from input_contract import validate_input_fields
 
 ROOT = Path(__file__).parent
 KEY = '/home/ubuntu/healthpay-delivery/HealthPay-Live-Server-SSH-PRIVATE-KEY'
@@ -62,6 +63,8 @@ class Runner:
     def create(self,operation,input_type,data,label):
         if not self.args.apply: raise RuntimeError('Creation blocked in dry-run')
         cmid=str(uuid.uuid4());payload={**data,'clientMutationId':cmid,'clientMutationLabel':'TEST-TFAC '+label}
+        contract=self.api.call('query($name:String!){__type(name:$name){inputFields{name type{kind name ofType{kind name ofType{kind name}}}}}}',{'name':input_type})
+        validate_input_fields(contract['__type']['inputFields'],payload)
         event={'operation':operation,'clientMutationId':cmid,'input':payload,'outcome':'SUBMITTING'};self.events.append(event);self.save()
         q='mutation($input:%s!){%s(input:$input){clientMutationId internalId}}' % (input_type,operation)
         event['response']=self.api.call(q,{'input':payload},allowed_mutation=operation);event['outcome']='ACKNOWLEDGED';self.save()
