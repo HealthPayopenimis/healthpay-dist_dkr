@@ -284,6 +284,7 @@ describe('HealthPay Issue38 — TFAC claim create and submit', () => {
   });
 
   it('creates exactly one service-only TFAC claim through the visible form', () => {
+    cy.intercept('POST','**/graphql',req=>{const q=String(req.body?.query||'');if(q.includes('healthFacilities')&&/\bid\s*:/.test(q))req.alias='tfacFacilityBootstrap';if(q.includes('query ClaimAdminPicker'))req.alias='tfacAdminBootstrap';});
     cy.login();
     cy.fixture('tfac-records', { log: false }).then((records) => {
       expect(records.familyId, 'TFAC family fixture').to.eq(9);
@@ -299,6 +300,8 @@ describe('HealthPay Issue38 — TFAC claim create and submit', () => {
 
     cy.visit(CLAIM_LIST_ROUTE);
     cy.location('pathname').should('eq', CLAIM_LIST_ROUTE);
+    cy.wait('@tfacFacilityBootstrap').then(({response})=>{expect(response.statusCode).eq(200);expect(response.body.errors).not.exist;expect(response.body.data.healthFacilities.edges[0].node.code).eq('TFAC001');});
+    cy.wait('@tfacAdminBootstrap').then(({response})=>{expect(response.statusCode).eq(200);expect(response.body.errors).not.exist;expect(response.body.data.claimAdmins.edges.some(e=>e.node.code==='TFACCLM')).eq(true);});
     cy.contains('button', /Create new claim|إنشاء مطالبة جديدة/).should('not.exist');
     cy.get('button.MuiFab-root:visible').filter(':not(:disabled)').last().should('exist').click();
     cy.location('pathname').should('eq', CLAIM_NEW_ROUTE);
