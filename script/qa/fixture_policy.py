@@ -24,6 +24,13 @@ def validate_fixture(fixture):
             raise RuntimeError('Synthetic dependent identifier denied')
     if 'TEST' not in fixture['diagnosis']['name'] or fixture['diagnosis']['codingSystem'] != 'synthetic QA sentinel; not ICD or an actual clinical diagnosis':
         raise RuntimeError('Diagnosis must be an explicitly synthetic, nonclinical sentinel')
+    benefit=fixture['serviceBenefit']
+    for key in ('limitationType','limitationTypeR','limitationTypeE'):
+        if benefit[key] != 'CO_INSURANCE': raise RuntimeError('QA zero co-insurance type denied')
+    for key in ('limitAdult','limitAdultR','limitAdultE','limitChild','limitChildR','limitChildE'):
+        if benefit[key] != '0.00': raise RuntimeError('QA zero co-insurance amount denied')
+    if fixture['enrolmentOfficer']['code'] != 'TFACOFF' or fixture['enrolmentOfficer']['hasLogin'] is not False:
+        raise RuntimeError('Synthetic non-login officer denied')
     if fixture['claimAdmin']['code'] != 'TESTTFAC' or fixture['claimAdmin']['hasLogin'] is not False:
         raise RuntimeError('Non-login administrator policy denied')
 

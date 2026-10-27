@@ -25,3 +25,9 @@ Retain the new synthetic fixtures for the requested management demo. The executi
 ## Gates
 
 `python -m unittest -v test_fixture_policy.py` exercises the approved case and negative controls for default/explicit production, wrong database, missing authorization, wrong document, wrong codes/markers, nonclinical diagnosis, non-login administrator, 8-character claim envelope, exact-match conflicts, missing canonical fields, and journal error/unknown states. The source CI gate runs without live credentials, network calls or databases. Existing Gate M assembly/module pins and all prior browser suites are unchanged.
+
+### Supported-input reconciliation
+
+The first product API request omitted service limit fields that `ServicesTabForm.onAdd` sends explicitly. The backend rejected it with `failed_to_create_product / 'limitation_type'`; readback proved no `TQAC001` product was created. The corrected fixture now declares all six adult/child O/R/E values as zero co-insurance and all three types as `CO_INSURANCE`, matching the prepared zero-co-pay mechanics and the supported UI contract. No backend or existing record was changed. Both failed and corrected attempts are retained in the execution evidence.
+
+The policy picker filters officers by village catchment. To avoid altering the existing officer's catchment or account districts, the fixture includes a new non-login enrolment officer `TFACOFF`, visibly synthetic, plus its single `EG010901` catchment. These are loaded through the same guarded source-controlled Django fixture path. No login, user-role grant or existing officer/catchment change is made.

@@ -43,7 +43,7 @@ print('QA_TRUST_END')
 SERVICE = 'id uuid code name type level packagetype price careType category patientCategory validityTo'
 PRICELIST = 'id uuid name pricelistDate validityTo details { edges { node { service { uuid code } priceOverrule } } }'
 FACILITY = 'id uuid code name level careType status validityTo legalForm { code } location { id uuid code } servicesPricelist { id uuid }'
-PRODUCT = 'id uuid code name dateFrom dateTo insurancePeriod maxMembers lumpSum ceiling deductible gracePeriodEnrolment gracePeriodPayment gracePeriodRenewal validityTo services { edges { node { service { uuid code } priceOrigin waitingPeriodAdult waitingPeriodChild } } }'
+PRODUCT = 'id uuid code name dateFrom dateTo insurancePeriod maxMembers lumpSum ceiling deductible gracePeriodEnrolment gracePeriodPayment gracePeriodRenewal validityTo services { edges { node { service { uuid code } priceOrigin limitationType limitationTypeR limitationTypeE limitAdult limitAdultR limitAdultE limitChild limitChildR limitChildE waitingPeriodAdult waitingPeriodChild } } }'
 
 class Runner:
     def __init__(self,args):
@@ -115,11 +115,12 @@ class Runner:
             if row:
                 if row['location']['code']!=facility['locationPcode'] or row['legalForm']['code']!=facility['legalFormId'] or not row['servicesPricelist'] or row['servicesPricelist']['uuid']!=pricelist['uuid']:raise RuntimeError('Facility links/parent contract mismatch')
         product=f['product'];payload=dict(product)
-        if service:payload['services']=[{'serviceUuid':service['uuid'],'priceOrigin':'PRICELIST','waitingPeriodAdult':0,'waitingPeriodChild':0}]
+        if service:payload['services']=[{'serviceUuid':service['uuid'],**f['serviceBenefit']}]
         row=self.ensure('product','products','code',product['code'],PRODUCT,product,'CreateProductMutationInput','createProduct',payload)
         if row and service:
             linked=row['services']['edges']
             if len(linked)!=1 or linked[0]['node']['service']['uuid']!=service['uuid']:raise RuntimeError('Product service benefit link mismatch')
+            require_match(linked[0]['node'],f['serviceBenefit'])
         self.save();print('QA_CATALOG_PHASE_COMPLETED',self.args.apply,flush=True)
 
 if __name__=='__main__':
