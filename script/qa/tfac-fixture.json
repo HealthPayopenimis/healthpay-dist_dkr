@@ -70,8 +70,8 @@
   "product": {
     "code": "TQAC001",
     "name": "TEST-TFAC — منتج اختباري — ليس منتج الهيئة",
-    "dateFrom": "2026-10-01",
-    "dateTo": "2027-09-30",
+    "dateFrom": "2026-10-01T00:00:00",
+    "dateTo": "2027-09-30T00:00:00",
     "insurancePeriod": 12,
     "maxMembers": 6,
     "lumpSum": "1000.00",
@@ -79,7 +79,9 @@
     "deductible": "0.00",
     "gracePeriodEnrolment": 0,
     "gracePeriodPayment": 0,
-    "gracePeriodRenewal": 0
+    "gracePeriodRenewal": 0,
+    "ceilingType": "POLICY",
+    "ceilingInterpretation": "CLAIM_TYPE"
   },
   "insuree": {
     "nationalId": "29001010190019",

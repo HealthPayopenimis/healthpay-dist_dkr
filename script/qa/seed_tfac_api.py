@@ -43,7 +43,7 @@ print('QA_TRUST_END')
 SERVICE = 'id uuid code name type level packagetype price careType category patientCategory validityTo'
 PRICELIST = 'id uuid name pricelistDate validityTo details { edges { node { service { uuid code } priceOverrule } } }'
 FACILITY = 'id uuid code name level careType status validityTo legalForm { code } location { id uuid code } servicesPricelist { id uuid }'
-PRODUCT = 'id uuid code name dateFrom dateTo insurancePeriod maxMembers lumpSum ceiling deductible gracePeriodEnrolment gracePeriodPayment gracePeriodRenewal validityTo services { edges { node { service { uuid code } priceOrigin limitationType limitationTypeR limitationTypeE limitAdult limitAdultR limitAdultE limitChild limitChildR limitChildE waitingPeriodAdult waitingPeriodChild } } }'
+PRODUCT = 'id uuid code name dateFrom dateTo insurancePeriod maxMembers lumpSum ceiling ceilingType ceilingInterpretation deductible gracePeriodEnrolment gracePeriodPayment gracePeriodRenewal validityTo services { edges { node { service { uuid code } priceOrigin limitationType limitationTypeR limitationTypeE limitAdult limitAdultR limitAdultE limitChild limitChildR limitChildE waitingPeriodAdult waitingPeriodChild } } }'
 
 class Runner:
     def __init__(self,args):
