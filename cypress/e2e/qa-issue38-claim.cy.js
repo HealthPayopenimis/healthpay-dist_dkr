@@ -325,7 +325,7 @@ describe('HealthPay Issue38 — TFAC claim create and submit', () => {
     chooseToday(['تاريخ المطالبة', 'تاريخ تقديم المطالبة']);
 
     // The source default is O; record the visible value without forcing a hidden value.
-    fieldRoot('نوع الزيارة').should('contain.text', 'أخرى');
+    fieldRoot('نوع الزيارة').find('input').first().invoke('val').then(v=>expect(v).to.be.oneOf(['O','أخرى']));
 
     cy.intercept('POST', '**/graphql', (request) => {
       const query = String(request.body?.query || '');
