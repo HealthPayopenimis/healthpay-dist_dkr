@@ -19,7 +19,7 @@ function guardMutation(query, variables, records) {
   }else if(op==='createPremium'){
     if(!records.policyUuid||!exactField('policyUuid',records.policyUuid)||!has('TEST-TFAC-0001'))throw new Error('Premium must use new TFAC policy UUID/receipt');
   }else if(op==='createClaim'){
-    if(!has('TFACC001')||!exactField('insureeId',records.insureeId)||!exactField('adminId',records.claimAdminId)||!exactField('healthFacilityId',records.facilityId)||!exactField('icdId',records.diagnosisId)||!exactField('serviceId',records.serviceId)||/\bitemId\s*:\s*\d/.test(q))throw new Error('Claim must use only the service-only TFAC fixture');
+    if(!exactField('code','TFACC001')||!exactField('insureeId',records.insureeId)||!exactField('adminId',records.claimAdminId)||!exactField('healthFacilityId',records.facilityId)||!exactField('icdId',records.diagnosisId)||!exactField('serviceId',records.serviceId)||/\bitemId\s*:\s*\d/.test(q))throw new Error('Claim must use only the service-only TFAC fixture');
   }else{
     if(!records.claimUuid||!has(records.claimUuid))throw new Error('Claim lifecycle target must be the new TFAC claim');
     const match=q.match(/\buuids\s*:\s*\[([^\]]*)\]/);
@@ -27,6 +27,7 @@ function guardMutation(query, variables, records) {
       const ids=[...match[1].matchAll(/"([^"]+)"/g)].map(x=>x[1]);
       if(ids.length!==1||ids[0]!==records.claimUuid)throw new Error('Only the single new claim UUID is allowed');
     }
+    for(const ids of [variables?.input?.uuids,variables?.uuids]){if(ids!==undefined&&(!Array.isArray(ids)||ids.length!==1||ids[0]!==records.claimUuid))throw new Error('Only the single new claim variable UUID is allowed');}
     const uuidTarget=variables?.input?.uuid||variables?.input?.claimUuid;
     if(uuidTarget&&uuidTarget!==records.claimUuid)throw new Error('Incorrect claim UUID target');
   }

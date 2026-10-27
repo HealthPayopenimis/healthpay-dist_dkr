@@ -15,3 +15,8 @@ console.log('TFAC_BROWSER_GUARD: PASS — positive/negative/frozen-target cases'
 
 assert.equal(guardMutation('mutation {createPremium(input:{policyUuid:"'+records.policyUuid+'" receipt:"TEST-TFAC-0001"}){clientMutationId}}',{},records),'createPremium');
 assert.throws(()=>guardMutation('mutation {createPremium(input:{policyUuid:"old-policy" receipt:"TEST-TFAC-0001"}){clientMutationId}}',{},records));
+const claimQuery='mutation {createClaim(input:{code:"TFACC001" insureeId:5 adminId:1 healthFacilityId:1 icdId:1 services:[{serviceId:2}]}){clientMutationId}}';
+assert.equal(guardMutation(claimQuery,{},records),'createClaim');
+assert.throws(()=>guardMutation(claimQuery.replace('code:"TFACC001"','code:"XTFACC001"'),{},records));
+assert.throws(()=>guardMutation('mutation($input:SubmitClaimsMutationInput!){submitClaims(input:$input){clientMutationId}}',{input:{uuids:[records.claimUuid,'other']}},records));
+assert.equal(guardMutation('mutation($input:SubmitClaimsMutationInput!){submitClaims(input:$input){clientMutationId}}',{input:{uuids:[records.claimUuid]}},records),'submitClaims');

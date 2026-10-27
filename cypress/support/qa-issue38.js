@@ -13,10 +13,11 @@ Cypress.Commands.add('login',()=>{
 beforeEach(()=>{
   events=[];
   cy.fixture('tfac-records',{log:false}).then(r=>Cypress.env('tfacRecords',r));
+  cy.fixture('cred',{log:false}).then(c=>{if(!['hpadmin','TFACCLM'].includes(c.username))throw new Error('Exact approved TFAC UI actor required');Cypress.env('qaActor',c.username);});
   cy.intercept('POST','**/graphql',req=>{
     const op=guardMutation(req.body?.query,req.body?.variables,Cypress.env('tfacRecords')||{});
     if(op==='AUTH'||op==='READ')return;
-    const event={operation:op,requestBody:req.body,actor:'hpadmin',requestedAt:new Date().toISOString()};events.push(event);
+    const event={operation:op,requestBody:req.body,actor:Cypress.env('qaActor'),requestedAt:new Date().toISOString()};events.push(event);
     req.alias=op;
     req.continue(res=>{event.httpStatus=res.statusCode;event.responseBody=res.body;event.respondedAt=new Date().toISOString();});
   });
