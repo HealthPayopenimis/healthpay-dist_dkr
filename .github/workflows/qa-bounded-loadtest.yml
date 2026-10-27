@@ -1,0 +1,26 @@
+name: QA bounded load-test guards
+on:
+  push:
+    branches: ['qa/loadtest-bounded-oct27']
+    paths: ['script/loadtest/**', '.github/workflows/qa-bounded-loadtest.yml']
+  pull_request:
+    paths: ['script/loadtest/**', '.github/workflows/qa-bounded-loadtest.yml']
+permissions:
+  contents: read
+jobs:
+  offline-guards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Default-deny and rolling resource guards; no live traffic
+        run: |
+          node script/loadtest/test_workload.mjs
+          python -m py_compile script/loadtest/*.py
+          cd script/loadtest
+          python -m unittest -v test_target_sampler.py test_supervise.py
