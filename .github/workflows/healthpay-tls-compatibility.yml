@@ -2,9 +2,9 @@ name: HealthPay TLS certificate compatibility
 on:
   push:
     branches: ['devops/tls-ecdsa-oct27']
-    paths: ['conf/nginx-healthpay/openimis.conf', 'script/test_healthpay_tls_ciphers.py', '.github/workflows/healthpay-tls-compatibility.yml']
+    paths: ['conf/nginx-healthpay/openimis.conf', 'script/test_healthpay_tls_ciphers.py', 'script/deploy_healthpay_tls.sh', 'script/render_healthpay_tls_config.sh', '.github/workflows/healthpay-tls-compatibility.yml']
   pull_request:
-    paths: ['conf/nginx-healthpay/openimis.conf', 'script/test_healthpay_tls_ciphers.py', '.github/workflows/healthpay-tls-compatibility.yml']
+    paths: ['conf/nginx-healthpay/openimis.conf', 'script/test_healthpay_tls_ciphers.py', 'script/deploy_healthpay_tls.sh', 'script/render_healthpay_tls_config.sh', '.github/workflows/healthpay-tls-compatibility.yml']
 permissions:
   contents: read
 jobs:
@@ -16,4 +16,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Real ECDSA/RSA TLS regression and pre-fix negative control
-        run: python script/test_healthpay_tls_ciphers.py -v
+        run: |
+          python script/test_healthpay_tls_ciphers.py -v
+          bash -n script/deploy_healthpay_tls.sh
+          sh -n script/render_healthpay_tls_config.sh
