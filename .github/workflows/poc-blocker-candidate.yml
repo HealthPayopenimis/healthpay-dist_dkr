@@ -31,3 +31,5 @@ jobs:
             --be-config /tmp/healthpay-be-current/openimis.json
       - name: Preserve TLS compatibility negative and positive controls
         run: python3 script/test_healthpay_tls_ciphers.py -v
+      - name: Check frontend-only rollout and rollback script syntax without execution
+        run: bash -n script/deploy_poc_frontend.sh
