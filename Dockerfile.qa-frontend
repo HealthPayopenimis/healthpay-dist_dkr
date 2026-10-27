@@ -1,7 +1,7 @@
 # Preserve the corrected V2 Nginx/entrypoint/TLS runtime. The new bundle is the
 # complete artifact from HealthPay frontend CI at the source commit label.
 # This is an immutable image build, never a running-container patch.
-FROM registry.digitalocean.com/healthpay-payer/frontend@sha256:fdc20c87f7aa405bd6a8fc1b039a41084517a173b5788065eda3d20849332ffa
+FROM registry.digitalocean.com/healthpay-payer/frontend@sha256:66413a309e7c0d2ad04cf58a5bf112a831fb7ef971144c7faf7fa17446b8362d
 ARG FRONTEND_SOURCE_COMMIT
 ARG FRONTEND_CI_RUN
 ARG FRONTEND_ARTIFACT_SHA256

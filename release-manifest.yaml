@@ -49,8 +49,8 @@ sourcing_allowlist:
 components:
   - name: healthpay-fe_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe_js
-    ref: issue36-37/qa-release
-    commit: 9f93732b8d7dca742e9307db2f34ac5282a875a6
+    ref: poc/blocker-release-oct27
+    commit: 9e3e0591937ecff9eed60786a6e9f81545deabea
     role: frontend-assembly
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
@@ -119,8 +119,8 @@ components:
     role: frontend-module
   - name: healthpay-fe-claim_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-claim_js
-    ref: release/26.04
-    commit: 15587e2961f59ab26e1d21cdef97ef12a5182309
+    ref: poc/claim-entry-permission-oct27
+    commit: 2e247e05e83b952e6b86c723394194756627c087
     role: frontend-module
   - name: healthpay-fe-claim_batch_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-claim_batch_js

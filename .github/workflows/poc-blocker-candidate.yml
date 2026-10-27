@@ -1,0 +1,33 @@
+name: POC blocker candidate manifest
+
+on:
+  push:
+    branches: ['poc/blocker-release-oct27']
+  workflow_dispatch:
+
+jobs:
+  gate-m-and-tls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch exact candidate and unchanged backend configurations
+        run: |
+          git init /tmp/healthpay-fe-candidate
+          git -C /tmp/healthpay-fe-candidate remote add origin https://github.com/HealthPayopenimis/healthpay-fe_js.git
+          git -C /tmp/healthpay-fe-candidate fetch --depth=1 origin 9e3e0591937ecff9eed60786a6e9f81545deabea
+          git -C /tmp/healthpay-fe-candidate checkout --detach FETCH_HEAD
+          git init /tmp/healthpay-be-current
+          git -C /tmp/healthpay-be-current remote add origin https://github.com/HealthPayopenimis/healthpay-be_py.git
+          git -C /tmp/healthpay-be-current fetch --depth=1 origin 06c7275a7beee82f662a3bb622042b48d71e524e
+          git -C /tmp/healthpay-be-current checkout --detach FETCH_HEAD
+      - name: Verify manifest, assembly configurations and remote pins
+        run: |
+          python3 script/verify_gate_m.py --manifest release-manifest.yaml \
+            --fe-config /tmp/healthpay-fe-candidate/openimis.json \
+            --be-config /tmp/healthpay-be-current/openimis.json
+      - name: Preserve TLS compatibility negative and positive controls
+        run: python3 script/test_healthpay_tls_ciphers.py -v
