@@ -4,6 +4,9 @@ describe('TFAC policy product transport contract — read only',()=>{
   const reads=[];cy.login();cy.fixture('tfac-records',{log:false}).then(records=>{
    cy.intercept('POST','**/graphql',req=>{const q=String(req.body?.query||'');if(!/\bmutation\b/.test(q)&&q.includes('ProductFragment')){const body=JSON.parse(JSON.stringify(req.body));req.continue(res=>reads.push({request:body,httpStatus:res.statusCode,response:res.body}));}});
    cy.visit('/front/policy/policy/_NEW_/'+records.familyUuid);
+   root('تاريخ الاشتراك').find('input:not(:disabled)').first().click();
+   cy.get('[role="dialog"] button.MuiPickersDay-day').filter((_,e)=>!e.className.includes('hidden')&&e.textContent.trim()===String(new Date().getDate())).last().click();
+   cy.contains('[role="dialog"] button',/^موافق$/).click();
    root('برنامج التغطية').find('input:not(:disabled)').first().click().clear().type('TQAC001',{log:false,delay:0});
    cy.wrap(null).should(()=>{expect(reads.some(r=>r.request.variables?.search==='TQAC001'),'actual searched picker response captured').eq(true);});
    cy.then(()=>{
