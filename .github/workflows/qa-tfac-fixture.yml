@@ -1,0 +1,21 @@
+name: QA TFAC fixture guards
+on:
+  push:
+    branches: ['issue38/qa-claim-fixture']
+    paths: ['script/qa/**', '.github/workflows/qa-tfac-fixture.yml']
+  pull_request:
+    paths: ['script/qa/**', '.github/workflows/qa-tfac-fixture.yml']
+  workflow_dispatch:
+jobs:
+  fixture-guards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Production-denial and negative controls
+        working-directory: script/qa
+        run: python -m unittest -v test_fixture_policy.py
+      - name: Python syntax
+        run: python -m compileall -q script/qa

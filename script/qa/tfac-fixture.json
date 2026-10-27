@@ -1,0 +1,23 @@
+{
+  "authorization_document_sha256": "3acfe7c2c14ff703ac0e0135d0ad18821b33eede5e37a599412dd25700ab0ca3",
+  "environment": "qa",
+  "synthetic_only": true,
+  "base_url": "https://inspayer.healthpay.tech",
+  "facilities": [
+    {"code":"TFAC001","name":"TEST-FAC-001 — مستشفى اختباري — ليس منشأة حقيقية","level":"H","careType":"B","legalFormId":"P","locationPcode":"EG010901","status":"AC"},
+    {"code":"TFAC002","name":"TEST-FAC-002 — مركز صحي اختباري — ليس منشأة حقيقية","level":"C","careType":"B","legalFormId":"P","locationPcode":"EG010902","status":"AC"},
+    {"code":"TFAC003","name":"TEST-FAC-003 — مستشفى اختباري — ليس منشأة حقيقية","level":"H","careType":"B","legalFormId":"P","locationPcode":"EG010901","status":"AC"},
+    {"code":"TFAC004","name":"TEST-FAC-004 — مركز صحي اختباري — ليس منشأة حقيقية","level":"C","careType":"B","legalFormId":"P","locationPcode":"EG210701","status":"AC"},
+    {"code":"TFAC005","name":"TEST-FAC-005 — مستشفى اختباري — ليس منشأة حقيقية","level":"H","careType":"B","legalFormId":"P","locationPcode":"EG210706","status":"AC"}
+  ],
+  "service": {"code":"TSVC01","name":"TEST — خدمة اختبار دورة المطالبة — ليست خدمة طبية حقيقية","type":"C","level":"S","packagetype":"S","careType":"O","category":"O","patientCategory":15,"price":"100.00"},
+  "servicePricelist": {"name":"TEST-TFAC — قائمة أسعار اختبارية","pricelistDate":"2026-10-01","serviceCode":"TSVC01","price":"100.00"},
+  "product": {"code":"TQAC001","name":"TEST-TFAC — منتج اختباري — ليس منتج الهيئة","dateFrom":"2026-10-01","dateTo":"2027-09-30","insurancePeriod":12,"maxMembers":6,"lumpSum":"1000.00","ceiling":"100000.00","deductible":"0.00","gracePeriodEnrolment":0,"gracePeriodPayment":0,"gracePeriodRenewal":0},
+  "insuree": {"nationalId":"29001010190019","lastName":"اختبار TFAC","otherNames":"شخص اختباري — ليس شخصًا حقيقيًا","dob":"1990-01-01","gender":"M","locationPcode":"EG010901","firstServicePoint":"TFAC001"},
+  "claimAdmin": {"code":"TESTTFAC","lastName":"اختبار TFAC","otherNames":"مسؤول مطالبات اختباري","facilityCode":"TFAC001","hasLogin":false},
+  "diagnosis": {"code":"TDX001","name":"TEST/TFAC — تشخيص اختباري — ليس تشخيصًا طبيًا","codingSystem":"synthetic QA sentinel; not ICD or an actual clinical diagnosis"},
+  "claim": {"code":"TFACC001","explanation":"TEST-TFAC — مطالبة اختبارية — ليست مطالبة طبية حقيقية","facilityCode":"TFAC001","serviceCode":"TSVC01","quantity":"1.00","requestedAmount":"100.00","visitType":"O"},
+  "contribution": {"amount":"1000.00","receipt":"TEST-TFAC-0001","payType":"C"},
+  "operator":"hpadmin",
+  "cleanup_policy":"Retain demo fixtures. Cleanup is a separate audited, dependency-aware operation limited to created IDs; no immediate deletion or alteration of existing records."
+}
