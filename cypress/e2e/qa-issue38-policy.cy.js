@@ -225,7 +225,7 @@ describe('TFAC policy and contribution UI creation', () => {
             setToday(['تاريخ السداد', 'Payment Date']);
             chooseSelect(['طريقة السداد', 'Payment Type'], ['نقدًا', 'Cash']);
             typeField(['رقم الإيصال', 'Receipt No.'], RECEIPT);
-            labelRoot(['المبلغ', 'Amount']).find('input').first().should('be.visible').then(($amount) => {
+            labelRoot(['قيمة الاشتراك', 'المبلغ', 'Amount']).find('input').first().should('be.visible').then(($amount) => {
               if ($amount.is(':disabled')) {
                 expect(String($amount.val()).replace(/,/g, ''), 'source-controlled one-installment amount').to.match(/^1000(?:\.00)?$/);
               } else {
@@ -235,7 +235,7 @@ describe('TFAC policy and contribution UI creation', () => {
             cy.wait('@tfacReceiptValidation', { timeout: 60000 }).then(({ response }) => {
               expect(response.statusCode).to.eq(200);
               expect(response.body.errors).not.to.exist;
-              expect(response.body.data.validatePremiumCode.isValid).to.eq(true);
+              expect(response.body.data.isValid).to.eq(true);
             });
             saveFab();
             cy.get('[role="dialog"]', { timeout: 60000 }).should('be.visible').within(() => {
