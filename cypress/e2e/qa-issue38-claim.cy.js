@@ -175,10 +175,14 @@ function recordOperation(operation, request, response) {
 }
 
 function chooseToday(label) {
- fieldRoot(label).find('input').first().should('be.visible').click();
- cy.get('[role="dialog"] button.MuiPickersDay-day').filter((_,e)=>!e.className.includes('hidden')&&e.textContent.trim()===String(new Date().getDate())).last().click();
- cy.contains('[role="dialog"] button',/^موافق$/).click();
+ fieldRoot(label).find('input').first().should('be.visible').then($input=>{
+  if($input.is(':disabled')){expect($input.val()).eq(new Intl.DateTimeFormat('en-GB').format(new Date()).replace(/\//g,'-'));return;}
+  cy.wrap($input).click();
+  cy.get('[role="dialog"] button.MuiPickersDay-day').filter((_,e)=>!e.className.includes('hidden')&&e.textContent.trim()===String(new Date().getDate())).last().click();
+  cy.contains('[role="dialog"] button',/^موافق$/).click();
+ });
 }
+
 function pk(id){if(typeof id==='number'||/^\d+$/.test(String(id)))return Number(id);return Number(atob(id).split(':').pop());}
 
 function assertReadonlyContext() {
