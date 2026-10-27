@@ -17,7 +17,7 @@ function guardMutation(query, variables, records) {
   }else if(op==='createPolicy'){
     if(!records.familyId||!exactField('familyId',records.familyId)||!exactField('productId',records.productId)||!exactField('officerId',records.officerId))throw new Error('Policy must use only new TFAC fixture IDs');
   }else if(op==='createPremium'){
-    if(!records.policyId||!exactField('policyId',records.policyId)||!has('TEST-TFAC-0001'))throw new Error('Premium must use new TFAC policy/receipt');
+    if(!records.policyUuid||!exactField('policyUuid',records.policyUuid)||!has('TEST-TFAC-0001'))throw new Error('Premium must use new TFAC policy UUID/receipt');
   }else if(op==='createClaim'){
     if(!has('TFACC001')||!exactField('insureeId',records.insureeId)||!exactField('adminId',records.claimAdminId)||!exactField('healthFacilityId',records.facilityId)||!exactField('icdId',records.diagnosisId)||!exactField('serviceId',records.serviceId)||/\bitemId\s*:\s*\d/.test(q))throw new Error('Claim must use only the service-only TFAC fixture');
   }else{
