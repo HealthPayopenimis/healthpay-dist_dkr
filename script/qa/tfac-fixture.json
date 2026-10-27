@@ -10,8 +10,9 @@
       "level": "H",
       "careType": "B",
       "legalFormId": "P",
-      "locationPcode": "EG010901",
-      "status": "AC"
+      "locationPcode": "EG0109",
+      "status": "AC",
+      "siteVillageReferencePcode": "EG010901"
     },
     {
       "code": "TFAC002",
@@ -19,8 +20,9 @@
       "level": "C",
       "careType": "B",
       "legalFormId": "P",
-      "locationPcode": "EG010902",
-      "status": "AC"
+      "locationPcode": "EG0109",
+      "status": "AC",
+      "siteVillageReferencePcode": "EG010902"
     },
     {
       "code": "TFAC003",
@@ -28,8 +30,9 @@
       "level": "H",
       "careType": "B",
       "legalFormId": "P",
-      "locationPcode": "EG010901",
-      "status": "AC"
+      "locationPcode": "EG0109",
+      "status": "AC",
+      "siteVillageReferencePcode": "EG010901"
     },
     {
       "code": "TFAC004",
@@ -37,8 +40,9 @@
       "level": "C",
       "careType": "B",
       "legalFormId": "P",
-      "locationPcode": "EG210701",
-      "status": "AC"
+      "locationPcode": "EG2107",
+      "status": "AC",
+      "siteVillageReferencePcode": "EG210701"
     },
     {
       "code": "TFAC005",
@@ -46,8 +50,9 @@
       "level": "H",
       "careType": "B",
       "legalFormId": "P",
-      "locationPcode": "EG210706",
-      "status": "AC"
+      "locationPcode": "EG2107",
+      "status": "AC",
+      "siteVillageReferencePcode": "EG210706"
     }
   ],
   "service": {

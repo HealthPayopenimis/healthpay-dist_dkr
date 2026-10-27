@@ -79,15 +79,17 @@ class Runner:
             time.sleep(2)
         event['outcome']='UNKNOWN_DO_NOT_REPLAY';self.save();raise RuntimeError('Mutation completion timeout; reconcile audit and exact code before retry')
     def ensure(self,label,field,key,value,projection,expected,input_type,operation,payload):
-        row=self.lookup(field,key,value,projection)
+        row=self.lookup(field,key,value,projection,history=False)
         if row:
             require_match(row,expected)
             if row.get('validityTo') is not None:raise RuntimeError('Historical record conflicts; no reactivation')
             self.events.append({'operation':'EXACT_MATCH_SKIP','entity':label,'key':value});self.records[label]=row;self.save();return row
+        if self.lookup(field,key,value,projection,history=True):
+            raise RuntimeError('Historical fixture conflict; no reactivation')
         if not self.args.apply:
             self.events.append({'operation':'WOULD_CREATE','entity':label,'key':value});self.save();return None
         self.create(operation,input_type,payload,value)
-        row=self.lookup(field,key,value,projection)
+        row=self.lookup(field,key,value,projection,history=False)
         if row is None:raise RuntimeError('Successful log without entity readback')
         require_match(row,expected)
         self.records[label]=row;self.save();print('QA_CREATE_READBACK_PASS',label,value,flush=True);return row
@@ -97,7 +99,7 @@ class Runner:
         locs={}
         for code in sorted(set(x['locationPcode'] for x in f['facilities'])):
             row=self.lookup('locations','code',code,'id uuid code name type parent {code type parent {code type}}',history=False)
-            if row is None or row['type']!='V':raise RuntimeError('Approved active V location absent')
+            if row is None or row['type']!='D':raise RuntimeError('Approved active facility district absent')
             locs[code]=row
         self.records['locations']=locs;self.save()
         service=self.ensure('service','medicalServices','code',f['service']['code'],SERVICE,f['service'],'CreateServiceMutationInput','createService',f['service'])
@@ -111,7 +113,7 @@ class Runner:
                 details=pricelist['details']['edges'];
                 if len(details)!=1 or details[0]['node']['service']['uuid']!=service['uuid'] or details[0]['node']['priceOverrule']!=p['price']:raise RuntimeError('Price-list linkage/amount readback mismatch')
         for facility in f['facilities']:
-            payload={k:v for k,v in facility.items() if k!='locationPcode'}
+            payload={k:v for k,v in facility.items() if k not in ('locationPcode','siteVillageReferencePcode')}
             payload['locationId']=numeric_id(locs[facility['locationPcode']]['id'])
             if pricelist:payload['servicesPricelistId']=numeric_id(pricelist['id'])
             row=self.ensure(facility['code'],'healthFacilities','code',facility['code'],FACILITY,{'code':facility['code'],'name':facility['name'],'level':facility['level'],'careType':facility['careType'],'status':facility['status']},'CreateHealthFacilityMutationInput','createHealthFacility',payload)
