@@ -2,9 +2,9 @@ name: QA TFAC fixture guards
 on:
   push:
     branches: ['issue38/qa-claim-fixture']
-    paths: ['script/qa/**', '.github/workflows/qa-tfac-fixture.yml']
+    paths: ['script/qa/**', '.github/workflows/qa-tfac-fixture.yml', 'cypress/e2e/qa-issue38*', 'cypress/support/qa-issue38.js', 'cypress.issue38*.js']
   pull_request:
-    paths: ['script/qa/**', '.github/workflows/qa-tfac-fixture.yml']
+    paths: ['script/qa/**', '.github/workflows/qa-tfac-fixture.yml', 'cypress/e2e/qa-issue38*', 'cypress/support/qa-issue38.js', 'cypress.issue38*.js']
   workflow_dispatch:
 jobs:
   fixture-guards:
@@ -14,8 +14,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       - name: Production-denial and negative controls
         working-directory: script/qa
         run: python -m unittest discover -p 'test_*.py' -v
       - name: Python syntax
         run: python -m compileall -q script/qa
+      - name: Browser mutation guard positive and negative controls
+        run: node script/qa/test_ui_mutation_guard.js
+      - name: Browser spec syntax
+        run: |
+          for spec in cypress/e2e/qa-issue38*.js cypress/support/qa-issue38.js; do
+            node --input-type=module --check < "$spec"
+          done

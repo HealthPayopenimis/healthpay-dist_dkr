@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const {guardMutation}=require('./ui_mutation_guard');
+const records={familyId:2,productId:2,officerId:13,policyId:9,insureeId:5,claimAdminId:1,facilityId:1,diagnosisId:1,serviceId:2,claimUuid:'00000000-0000-0000-0000-000000000001'};
+assert.equal(guardMutation('query {products{edges{node{code}}}}',{},records),'READ');
+assert.equal(guardMutation('mutation {getCsrfToken(input:{}){clientMutationId}}',{},records),'AUTH');
+assert.equal(guardMutation('mutation {createFamily(input:{headInsuree:{chfId:"29001010190019",lastName:"اختبار TFAC"}}){clientMutationId}}',{},records),'createFamily');
+assert.throws(()=>guardMutation('mutation {createFamily(input:{headInsuree:{chfId:"29001011234567",lastName:"TFAC"}}){clientMutationId}}',{},records));
+assert.throws(()=>guardMutation('mutation {updateFamily(input:{uuid:"old"}){clientMutationId}}',{},records));
+assert.equal(guardMutation('mutation {createPolicy(input:{familyId:2 productId:2 officerId:13}){clientMutationId}}',{},records),'createPolicy');
+assert.throws(()=>guardMutation('mutation {createPolicy(input:{familyId:1 productId:2 officerId:13}){clientMutationId}}',{},records));
+assert.equal(guardMutation('mutation {submitClaims(input:{uuids:["'+records.claimUuid+'"]}){clientMutationId}}',{},records),'submitClaims');
+assert.throws(()=>guardMutation('mutation {submitClaims(input:{uuids:["'+records.claimUuid+'","other"]}){clientMutationId}}',{},records));
+assert.throws(()=>guardMutation('mutation {deleteClaims(input:{uuids:["'+records.claimUuid+'"]}){clientMutationId}}',{},records));
+console.log('TFAC_BROWSER_GUARD: PASS — positive/negative/frozen-target cases');
