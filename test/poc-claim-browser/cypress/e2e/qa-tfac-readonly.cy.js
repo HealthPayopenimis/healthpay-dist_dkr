@@ -338,18 +338,19 @@ describe('HealthPay TFACCLM — scoped claim read-only acceptance', () => {
     });
     claimCode.should('have.value', CLAIM_CODE);
 
-    const attemptCreateAndProveUnlock = () => {
+    const attemptCreateAndProveUnlock = (expectedAttempt) => {
       cy.get('button.MuiFab-root:visible').filter(':not(:disabled)').last().should('exist').click();
       cy.wait('@tfacCreateClaim', { timeout: 30000 }).then(({ request, response }) => {
         expect(request.method, 'simulated createClaim method').to.eq('POST');
         expect(response, 'backend response after local forceNetworkError').to.not.exist;
+        expect((Cypress.env('qaSaveMutationIds') || []).length, 'distinct operator Save attempts excluding browser retries').to.eq(expectedAttempt);
       });
       fieldRoot(['رقم المطالبة', 'Claim Code']).find('input').first().should('be.enabled');
       cy.get('button.MuiFab-root:visible').filter(':not(:disabled)').last().should('exist');
     };
 
-    attemptCreateAndProveUnlock();
-    attemptCreateAndProveUnlock();
+    attemptCreateAndProveUnlock(1);
+    attemptCreateAndProveUnlock(2);
     cy.then(() => expect(Cypress.env('countBusinessForwarded'), 'business mutations forwarded').to.eq(0));
     recordEntryEvidence('tfac-create-transport-simulation.json', {
       service: SERVICE_CODE,
@@ -357,6 +358,8 @@ describe('HealthPay TFACCLM — scoped claim read-only acceptance', () => {
       requestedAmount: '100.00',
       attempted: true,
       attemptedTransportFailures: 2,
+      distinctOperatorSaveAttempts: 2,
+      browserAutomaticRetriesExcluded: true,
       simulatedNetworkError: true,
       formUnlockedAfterFailure: true,
       retryUnlockedAndReattempted: true,

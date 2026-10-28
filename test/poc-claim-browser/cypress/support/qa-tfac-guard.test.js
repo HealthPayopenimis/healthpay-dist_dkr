@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const { classifyGraphQL, exactClaimCode, operationName, readAlias } = require('./qa-tfac-guard');
+const { classifyGraphQL, exactClaimCode, clientMutationIdentity, operationName, readAlias } = require('./qa-tfac-guard');
 
 assert.deepEqual(classifyGraphQL('query { healthFacilities { edges { node { code } } } }'), {
   kind: 'READ',
@@ -13,6 +13,15 @@ assert.equal(classifyGraphQL('mutation { createClaim(input: { code: "TFACC001" }
 assert.equal(exactClaimCode('mutation { createClaim(input: { code: "TFACC001" }) { clientMutationId } }'), true);
 assert.equal(exactClaimCode('mutation($input: CreateClaimInput!) { createClaim(input: $input) { clientMutationId } }', { input: { code: 'TFACC001' } }), true);
 assert.equal(exactClaimCode('mutation { createClaim(input: { code: "OTHER" }) { clientMutationId } }'), false);
+const firstId = '11111111-1111-4111-8111-111111111111';
+const secondId = '22222222-2222-4222-8222-222222222222';
+const inline = `mutation { createClaim(input: { code: "TFACC001", clientMutationId: "${firstId}" }) { clientMutationId } }`;
+assert.equal(clientMutationIdentity(inline), firstId);
+assert.equal(clientMutationIdentity(inline), clientMutationIdentity(inline), 'automatic retry has the same identity');
+assert.equal(clientMutationIdentity('', { input: { clientMutationId: secondId } }), secondId);
+assert.equal(clientMutationIdentity(inline, { input: { clientMutationId: secondId } }), null, 'conflicting identities fail closed');
+assert.equal(clientMutationIdentity('mutation { createClaim(input: { code: "TFACC001" }) { clientMutationId } }'), null);
+assert.equal(clientMutationIdentity('', { input: { clientMutationId: 'not-a-uuid' } }), null);
 
 // Fail closed: auth and business in one document may not be continued.
 assert.deepEqual(classifyGraphQL('mutation { getCsrfToken { csrfToken } createClaim(input: { code: "TFACC001" }) { clientMutationId } }'), {
@@ -63,5 +72,8 @@ assert.match(browserSpec, /query ScopedClaimActorRead/);
 assert.doesNotMatch(browserSpec, /mutation\s+ScopedClaimActorRead/);
 assert.match(browserSpec, /forceNetworkError/);
 assert.match(browserSpec, /attemptedTransportFailures: 2/);
+assert.match(browserSpec, /attemptCreateAndProveUnlock\(1\)/);
+assert.match(browserSpec, /attemptCreateAndProveUnlock\(2\)/);
+assert.match(browserSpec, /distinct operator Save attempts excluding browser retries/);
 
 console.log('TFAC_CLAIM_BROWSER_GUARD: PASS — auth/business mixing, batching, unknown operations, and exact simulation negatives');

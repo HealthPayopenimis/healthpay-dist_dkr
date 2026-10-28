@@ -1,4 +1,4 @@
-const { classifyGraphQL, exactClaimCode, readAlias } = require('./qa-tfac-guard');
+const { classifyGraphQL, exactClaimCode, clientMutationIdentity, readAlias } = require('./qa-tfac-guard');
 
 function safeEvent(request, operation, disposition) {
   return {
@@ -17,6 +17,7 @@ function writeJournal() {
   cy.writeFile('cypress/evidence/tfac-readonly-transport.json', {
     actor: Cypress.env('qaActor') || null,
     countBusinessForwarded: Cypress.env('countBusinessForwarded') || 0,
+    countDistinctCreateAttempts: (Cypress.env('qaSaveMutationIds') || []).length,
     events: Cypress.env('qaTransportEvents') || [],
     note: 'Metadata only. Request/response bodies, variables, query text, credentials, tokens, and passwords are intentionally excluded.',
   }, { log: false });
@@ -39,6 +40,7 @@ Cypress.Commands.add('login', () => {
 beforeEach(() => {
   Cypress.env('qaTransportEvents', []);
   Cypress.env('countBusinessForwarded', 0);
+  Cypress.env('qaSaveMutationIds', []);
   cy.intercept('POST', '**/graphql', (request) => {
     const query = request.body && request.body.query;
     const variables = request.body && request.body.variables;
@@ -59,8 +61,13 @@ beforeEach(() => {
     }
 
     if (classification.kind === 'BUSINESS' && classification.operation === 'createClaim' && exactClaimCode(query, variables)) {
-      request.alias = 'tfacCreateClaim';
-      events.push(safeEvent(request, classification.operation, 'simulated_network_error'));
+      const id = clientMutationIdentity(query, variables);
+      if (!id) throw new Error('Readonly simulation denied missing or ambiguous create mutation identity');
+      const ids = Cypress.env('qaSaveMutationIds') || [];
+      const automaticTransportRetry = ids.includes(id);
+      if (!automaticTransportRetry) { ids.push(id); request.alias = 'tfacCreateClaim'; }
+      Cypress.env('qaSaveMutationIds', ids);
+      events.push({ ...safeEvent(request, classification.operation, 'simulated_network_error'), operatorAttempt: ids.indexOf(id) + 1, automaticTransportRetry });
       Cypress.env('qaTransportEvents', events);
       request.reply({ forceNetworkError: true });
       return;

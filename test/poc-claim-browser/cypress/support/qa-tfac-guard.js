@@ -90,6 +90,13 @@ function exactClaimCode(query, variables) {
   const variableCode = variables && variables.input && variables.input.code;
   return String(variableCode || '') === 'TFACC001' || /\bcode\s*:\s*"TFACC001"/.test(String(query || ''));
 }
+function clientMutationIdentity(query, variables) {
+  const variableId = variables?.input?.clientMutationId;
+  const inlineIds = Array.from(String(query || '').matchAll(/\bclientMutationId\s*:\s*"([^"]+)"/g), (match) => match[1]);
+  const ids = [...new Set([variableId, ...inlineIds].filter((value) => value !== undefined))];
+  if (ids.length !== 1 || !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(ids[0])) return null;
+  return ids[0];
+}
 function readAlias(query) {
   const q = String(query || '');
   if (/query\s+useUserQuery\b/.test(q) || /\bcurrentUser\s*\{/.test(q) || (/\buser\s*\{/.test(q) && /\busername\b/.test(q))) return 'tfacUserQuery';
@@ -101,4 +108,4 @@ function readAlias(query) {
   if (/validateClaimCode/.test(q)) return 'tfacClaimCodeValidation';
   return null;
 }
-module.exports = { classifyGraphQL, exactClaimCode, operationName, readAlias };
+module.exports = { classifyGraphQL, exactClaimCode, clientMutationIdentity, operationName, readAlias };
