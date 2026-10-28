@@ -10,6 +10,18 @@ const DIAGNOSIS_CODE = 'TDX001';
 const SERVICE_CODE = 'TSVC01';
 const EXPLANATION = 'TEST-TFAC — مطالبة اختبارية — ليست مطالبة طبية حقيقية';
 
+// This document is deliberately a read query. It is sent with cy.request only to
+// prove the authenticated actor and scope in the same browser session; it never
+// contains a mutation field, create input, or write variables.
+const SCOPED_ACTOR_READ_QUERY = `query ScopedClaimActorRead {
+  user {
+    username
+    rights
+    claimAdmin { id code }
+    healthFacility { id }
+  }
+}`;
+
 function normalized(text) {
   return String(text || '').replace(/\*/g, '').replace(/\s+/g, ' ').trim();
 }
@@ -55,30 +67,26 @@ function assertRightsAndActor(response) {
   expect(rights, 'review-only right absent').not.to.include(String(FORBIDDEN_RIGHT));
   expect(user.claimAdmin?.code, 'scoped claim administrator').to.eq(ACTOR);
   expect(normalizeRelayId(user.claimAdmin?.id), 'claim administrator id').to.eq(2);
-  // The deployed user document is the source of truth. Some deployments omit
-  // healthFacility.code from the projection, so facility scope is checked via
-  // the dedicated facility/admin bootstrap responses below instead.
-  if (user.healthFacility?.id !== undefined) expect(normalizeRelayId(user.healthFacility.id)).to.eq(1);
+  expect(normalizeRelayId(user.healthFacility?.id), 'user facility id').to.eq(1);
 }
 
-function assertFacilityBootstrap(response) {
-  assertResponseOk(response, 'facility bootstrap');
-  const node = response.body?.data?.healthFacilities?.edges?.[0]?.node;
-  expect(node, 'facility bootstrap node').to.be.an('object');
-  expect(node.code, 'facility code').to.eq(FACILITY);
-  expect(normalizeRelayId(node.id), 'facility id').to.eq(1);
-  expect(node.location, 'facility location').to.be.an('object');
-  expect(node.location.parent, 'facility full path parent').to.be.an('object');
+function assertReadQueryCannotWrite() {
+  expect(SCOPED_ACTOR_READ_QUERY, 'scoped actor query').not.to.match(/\bmutation\b/i);
+  expect(SCOPED_ACTOR_READ_QUERY, 'scoped actor query').not.to.match(/\b(create|update|delete|submit|process)[A-Z_]/i);
 }
 
-function assertAdminBootstrap(response) {
-  assertResponseOk(response, 'claim-admin bootstrap');
-  const nodes = response.body?.data?.claimAdmins?.edges?.map((edge) => edge.node) || [];
-  const admin = nodes.find((node) => node.code === ACTOR);
-  expect(admin, 'scoped claim-admin bootstrap result').to.be.an('object');
-  expect(normalizeRelayId(admin.id), 'claim-admin id').to.eq(2);
-  if (admin.healthFacility?.id !== undefined) expect(normalizeRelayId(admin.healthFacility.id)).to.eq(1);
-  if (admin.healthFacility?.code !== undefined) expect(admin.healthFacility.code).to.eq(FACILITY);
+function assertScopedActorByReadQuery() {
+  assertReadQueryCannotWrite();
+  cy.window({ log: false }).then((windowObject) => cy.request({
+    method: 'POST',
+    url: '/api/graphql',
+    log: false,
+    headers: {
+      'X-CSRFToken': windowObject.localStorage.getItem('csrfToken') || '',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    body: { query: SCOPED_ACTOR_READ_QUERY },
+  })).then((response) => assertRightsAndActor({ statusCode: response.status, body: response.body }));
 }
 
 function chooseToday(labels) {
@@ -100,39 +108,79 @@ function chooseToday(labels) {
   });
 }
 
-function waitForListBootstrap() {
-  cy.wait('@tfacFacilityBootstrap').then(({ response }) => assertFacilityBootstrap(response));
-  cy.wait('@tfacAdminBootstrap').then(({ response }) => assertAdminBootstrap(response));
+function visibleAddFab() {
+  return cy.get('button.MuiFab-root:visible').last();
 }
 
-function openClaimFormFromList() {
-  cy.visit(CLAIM_LIST_ROUTE);
+function addReadinessText($button) {
+  const parent = $button.parent();
+  return normalized([
+    $button.attr('aria-label'),
+    $button.attr('title'),
+    $button.attr('aria-describedby'),
+    parent.attr('title'),
+    parent.text(),
+  ].filter(Boolean).join(' '));
+}
+
+function waitForVisibleAddReadiness() {
+  let observedLoadingDisabled = false;
+  visibleAddFab().should(($button) => {
+    expect($button, 'visible Add Claim control').to.be.visible;
+    if ($button.is(':disabled')) {
+      observedLoadingDisabled = true;
+      // A disabled state must be operator-understandable, not a silent race.
+      expect(addReadinessText($button), 'disabled Add Claim explanation').to.match(
+        /loading|wait|retry|facility|administrator|جاري|انتظار|إعادة|مسؤول|منشأة/i,
+      );
+    } else {
+      expect($button.attr('aria-busy'), 'Add Claim busy state').not.to.eq('true');
+    }
+  }).should('not.be.disabled');
   cy.location('pathname').should('eq', CLAIM_LIST_ROUTE);
-  waitForListBootstrap();
-  cy.get('button.MuiFab-root:visible').filter(':not(:disabled)').last().should('exist').click();
+  return cy.wrap(null, { log: false }).then(() => ({ observedLoadingDisabled }));
+}
+
+function assertScopedNewFormContext() {
   cy.location('pathname').should('eq', CLAIM_NEW_ROUTE);
   cy.get('#root').should('be.visible');
-  // React Query may reuse/cancel its hook request across route transitions.
-  // Prove the live actor/rights through a fixed query in this browser session,
-  // and prove actual application readiness through visible enabled controls.
-  cy.window({ log: false }).then((windowObject) => cy.request({
-    method: 'POST', url: '/api/graphql', log: false,
-    headers: {
-      'X-CSRFToken': windowObject.localStorage.getItem('csrfToken') || '',
-      'X-Requested-With': 'XMLHttpRequest',
-    },
-    body: { query: 'query ScopedClaimActorRead { user { username rights claimAdmin { id code } healthFacility { id } } }' },
-  })).then((response) => assertRightsAndActor({ statusCode: response.status, body: response.body }));
+  fieldRoot(['المنشأة الصحية', 'Health Facility']).find('input').first()
+    .should('be.visible').should('be.disabled').invoke('val').should('include', FACILITY);
+  fieldRoot(['مسؤول المطالبات', 'Claim Administrator']).find('input').first()
+    .should('be.visible').should('be.disabled').invoke('val').should('include', ACTOR);
+}
+
+function openClaimFormFromList(attempt) {
+  cy.visit(CLAIM_LIST_ROUTE);
+  cy.location('pathname').should('eq', CLAIM_LIST_ROUTE);
+  waitForVisibleAddReadiness();
+  visibleAddFab().should('be.enabled').click();
+  assertScopedNewFormContext();
+  assertScopedActorByReadQuery();
   cy.get('#root').then(($root) => {
     const controls = [];
     $root.find('label').each((_, label) => {
       const group = Cypress.$(label).closest('.MuiFormControl-root');
-      controls.push({ label: normalized(label.textContent), inputs: group.find('input,textarea').map((__, input) => ({ tag: input.tagName, disabled: input.disabled, type: input.type })).get() });
+      controls.push({
+        label: normalized(label.textContent),
+        inputs: group.find('input,textarea').map((__, input) => ({
+          tag: input.tagName,
+          disabled: input.disabled,
+          type: input.type,
+        })).get(),
+      });
     });
-    cy.writeFile('cypress/evidence/tfac-claim-control-metadata.json', { controls }, { log: false });
+    cy.writeFile(`cypress/evidence/tfac-claim-control-metadata-${attempt || 'single'}.json`, { controls }, { log: false });
   });
-  fieldRoot(['المنشأة الصحية', 'Health Facility']).find('input').first().should('be.disabled').invoke('val').should('include', FACILITY);
-  fieldRoot(['مسؤول المطالبات', 'Claim Administrator']).find('input').first().should('be.disabled').invoke('val').should('include', ACTOR);
+}
+
+function openFreshDeepNewForm() {
+  // Direct navigation is the supported fresh route. The test does not inject
+  // Redux/localStorage state or fabricate a response; the application must load
+  // real user context before rendering the form.
+  cy.visit(CLAIM_NEW_ROUTE);
+  assertScopedNewFormContext();
+  assertScopedActorByReadQuery();
 }
 
 function fillCoreClaimFields() {
@@ -173,7 +221,7 @@ function addSupportedService() {
 }
 
 function recordEntryEvidence(file, extra = {}) {
-  cy.writeFile(`cypress/evidence/${file}`, {
+  cy.then(() => cy.writeFile(`cypress/evidence/${file}`, {
     actor: ACTOR,
     facility: FACILITY,
     claimAdmin: ACTOR,
@@ -181,29 +229,46 @@ function recordEntryEvidence(file, extra = {}) {
     claimMutationSubmitted: false,
     countBusinessForwarded: Cypress.env('countBusinessForwarded') || 0,
     ...extra,
-    note: 'Metadata only; no response/request bodies, query text, variables, credentials, tokens, or passwords are recorded.',
-  }, { log: false });
+    note: 'Metadata only; no response/request bodies, query text, variables, credentials, tokens, passwords, or raw user records are recorded.',
+  }, { log: false }));
 }
 
 describe('HealthPay TFACCLM — scoped claim read-only acceptance', () => {
-  it('opens the real claim form from the list and reaches editable entry readiness without saving', () => {
+  it('reaches scoped editable entry readiness through three independent normal list-to-Add transitions', () => {
     cy.login();
-    openClaimFormFromList();
-    fillCoreClaimFields();
-    expect(Cypress.env('countBusinessForwarded'), 'business mutations forwarded before save').to.eq(0);
-    enabledField(['رقم المطالبة', 'Claim Code']).should('be.enabled');
-    enabledField(['توضيح', 'Explanation']).should('be.enabled');
-    recordEntryEvidence('tfac-entry-form-ready.json', {
-      insureeNationalId: INSUREE_NID,
-      diagnosis: DIAGNOSIS_CODE,
-      explanationFilled: true,
+    [1, 2, 3].forEach((attempt) => {
+      openClaimFormFromList(attempt);
+      enabledField(['رقم المطالبة', 'Claim Code']).should('be.enabled');
+      enabledField(['توضيح', 'Explanation']).should('be.enabled');
+      cy.then(() => expect(Cypress.env('countBusinessForwarded'), 'business mutations forwarded before save').to.eq(0));
+    });
+    recordEntryEvidence('tfac-repeated-entry-readiness.json', {
+      independentTransitions: 3,
+      entryFieldsEditable: true,
+      reviewRightPresent: false,
       saveClicked: false,
+      outcome: 'SCOPED_ENTRY_READY_WITHOUT_REVIEW',
     });
   });
 
-  it('uses normal list-to-Add Claim readiness, selects a real service/date, then locally fails exact createClaim and unlocks the form', () => {
+  it('supports a fresh/deep new-entry route with loaded real user context and editable entry fields', () => {
     cy.login();
-    openClaimFormFromList();
+    openFreshDeepNewForm();
+    enabledField(['رقم المطالبة', 'Claim Code']).should('be.enabled');
+    enabledField(['توضيح', 'Explanation']).clear().type(EXPLANATION, { log: false }).should('be.enabled');
+    cy.then(() => expect(Cypress.env('countBusinessForwarded'), 'business mutations forwarded on fresh route').to.eq(0));
+    recordEntryEvidence('tfac-fresh-deep-entry-readiness.json', {
+      freshDeepRoute: true,
+      loadedUserContext: true,
+      entryFieldsEditable: true,
+      saveClicked: false,
+      outcome: 'FRESH_DEEP_ENTRY_READY',
+    });
+  });
+
+  it('locally fails exact TFACC001 create transport twice and proves form unlock/retry without backend persistence', () => {
+    cy.login();
+    openClaimFormFromList('save');
     fillCoreClaimFields();
     addSupportedService();
 
@@ -214,25 +279,32 @@ describe('HealthPay TFACCLM — scoped claim read-only acceptance', () => {
     });
     claimCode.should('have.value', CLAIM_CODE);
 
-    cy.get('button.MuiFab-root:visible').filter(':not(:disabled)').last().should('exist').click();
-    cy.wait('@tfacCreateClaim', { timeout: 30000 }).then(({ request, response }) => {
-      expect(request.method, 'simulated createClaim method').to.eq('POST');
-      expect(response, 'backend response after local forceNetworkError').to.not.exist;
-    });
+    const attemptCreateAndProveUnlock = () => {
+      cy.get('button.MuiFab-root:visible').filter(':not(:disabled)').last().should('exist').click();
+      cy.wait('@tfacCreateClaim', { timeout: 30000 }).then(({ request, response }) => {
+        expect(request.method, 'simulated createClaim method').to.eq('POST');
+        expect(response, 'backend response after local forceNetworkError').to.not.exist;
+      });
+      fieldRoot(['رقم المطالبة', 'Claim Code']).find('input').first().should('be.enabled');
+      cy.get('button.MuiFab-root:visible').filter(':not(:disabled)').last().should('exist');
+    };
 
-    // saveClaimWithRecovery should clear lockNew/isSaved after the local transport rejection.
-    fieldRoot(['رقم المطالبة', 'Claim Code']).find('input').first().should('be.enabled');
-    cy.get('button.MuiFab-root:visible').filter(':not(:disabled)').last().should('exist');
-    expect(Cypress.env('countBusinessForwarded'), 'business mutations forwarded').to.eq(0);
+    attemptCreateAndProveUnlock();
+    attemptCreateAndProveUnlock();
+    cy.then(() => expect(Cypress.env('countBusinessForwarded'), 'business mutations forwarded').to.eq(0));
     recordEntryEvidence('tfac-create-transport-simulation.json', {
       service: SERVICE_CODE,
       quantity: '1',
       requestedAmount: '100.00',
       attempted: true,
+      attemptedTransportFailures: 2,
       simulatedNetworkError: true,
+      formUnlockedAfterFailure: true,
+      retryUnlockedAndReattempted: true,
       persistedBackendAcceptance: false,
       createClaimContinued: false,
       classification: 'NOT_PERSISTED_BACKEND_ACCEPTANCE',
+      outcome: 'LOCAL_TRANSPORT_FAILURE_UNLOCK_RETRY_PROVEN',
     });
   });
 });

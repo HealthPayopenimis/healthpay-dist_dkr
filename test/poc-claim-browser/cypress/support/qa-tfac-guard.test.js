@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const { classifyGraphQL, exactClaimCode, operationName, readAlias } = require('./qa-tfac-guard');
 
 assert.deepEqual(classifyGraphQL('query { healthFacilities { edges { node { code } } } }'), {
@@ -50,5 +51,17 @@ for (const document of [
 assert.equal(classifyGraphQL('mutation Login($username:String!,$password:String!){auth:tokenAuth(username:$username,password:$password){token}}').kind, 'AUTH');
 assert.equal(classifyGraphQL('query{one:healthFacilities{edges{node{code}}}two:__typename}').kind, 'READ');
 assert.equal(classifyGraphQL('query($x:String="mutation getCsrfToken"){healthFacilities{edges{node{code}}}}').kind, 'READ');
+
+// Source guard: browser acceptance must wait on visible application state or
+// intercepted responses, never arbitrary time or injected application state.
+const browserSpec = fs.readFileSync(require.resolve('../e2e/qa-tfac-readonly.cy.js'), 'utf8');
+assert.equal(/cy\.wait\(\s*\d+/.test(browserSpec), false, 'no fixed cy.wait sleeps');
+assert.equal(/setTimeout|sleep\s*\(/.test(browserSpec), false, 'no arbitrary timer sleeps');
+assert.equal(/localStorage\.setItem|sessionStorage\.setItem|window\.__|store\.dispatch\s*\(/i.test(browserSpec), false, 'no store injection');
+assert.match(browserSpec, /SCOPED_ACTOR_READ_QUERY/);
+assert.match(browserSpec, /query ScopedClaimActorRead/);
+assert.doesNotMatch(browserSpec, /mutation\s+ScopedClaimActorRead/);
+assert.match(browserSpec, /forceNetworkError/);
+assert.match(browserSpec, /attemptedTransportFailures: 2/);
 
 console.log('TFAC_CLAIM_BROWSER_GUARD: PASS — auth/business mixing, batching, unknown operations, and exact simulation negatives');
