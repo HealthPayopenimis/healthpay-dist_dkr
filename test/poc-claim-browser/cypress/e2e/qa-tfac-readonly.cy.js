@@ -111,7 +111,17 @@ function openClaimFormFromList() {
   cy.get('button.MuiFab-root:visible').filter(':not(:disabled)').last().should('exist').click();
   cy.location('pathname').should('eq', CLAIM_NEW_ROUTE);
   cy.get('#root').should('be.visible');
-  cy.wait('@tfacUserQuery').then(({ response }) => assertRightsAndActor(response));
+  // React Query may reuse/cancel its hook request across route transitions.
+  // Prove the live actor/rights through a fixed query in this browser session,
+  // and prove actual application readiness through visible enabled controls.
+  cy.window({ log: false }).then((windowObject) => cy.request({
+    method: 'POST', url: '/api/graphql', log: false,
+    headers: {
+      'X-CSRFToken': windowObject.localStorage.getItem('csrfToken') || '',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    body: { query: 'query ScopedClaimActorRead { user { username rights claimAdmin { id code } healthFacility { id } } }' },
+  })).then((response) => assertRightsAndActor({ statusCode: response.status, body: response.body }));
   cy.get('#root').then(($root) => {
     const controls = [];
     $root.find('label').each((_, label) => {
