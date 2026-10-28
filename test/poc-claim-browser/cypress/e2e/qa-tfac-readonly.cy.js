@@ -100,7 +100,6 @@ function chooseToday(labels) {
 }
 
 function waitForListBootstrap() {
-  cy.wait('@tfacUserQuery').then(({ response }) => assertRightsAndActor(response));
   cy.wait('@tfacFacilityBootstrap').then(({ response }) => assertFacilityBootstrap(response));
   cy.wait('@tfacAdminBootstrap').then(({ response }) => assertAdminBootstrap(response));
 }
@@ -112,6 +111,15 @@ function openClaimFormFromList() {
   cy.get('button.MuiFab-root:visible').filter(':not(:disabled)').last().should('exist').click();
   cy.location('pathname').should('eq', CLAIM_NEW_ROUTE);
   cy.get('#root').should('be.visible');
+  cy.wait('@tfacUserQuery').then(({ response }) => assertRightsAndActor(response));
+  cy.get('#root').then(($root) => {
+    const controls = [];
+    $root.find('label').each((_, label) => {
+      const group = Cypress.$(label).closest('.MuiFormControl-root');
+      controls.push({ label: normalized(label.textContent), inputs: group.find('input,textarea').map((__, input) => ({ tag: input.tagName, disabled: input.disabled, type: input.type })).get() });
+    });
+    cy.writeFile('cypress/evidence/tfac-claim-control-metadata.json', { controls }, { log: false });
+  });
   fieldRoot(['المنشأة الصحية', 'Health Facility']).find('input').first().should('be.disabled').invoke('val').should('include', FACILITY);
   fieldRoot(['مسؤول المطالبات', 'Claim Administrator']).find('input').first().should('be.disabled').invoke('val').should('include', ACTOR);
 }
