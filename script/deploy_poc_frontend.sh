@@ -2,7 +2,7 @@
 # Remote QA host only. Application source, roles, policies and DB are not changed.
 # Usage: deploy_poc_frontend.sh apply <published immutable image>
 #        deploy_poc_frontend.sh rollback <backup directory from this script>
-set -euo pipefail
+set -Eeuo pipefail
 MODE=${1:?apply or rollback required}
 VALUE=${2:?immutable image or exact backup path required}
 [[ $(hostname) == healthpay-trial1-app ]]

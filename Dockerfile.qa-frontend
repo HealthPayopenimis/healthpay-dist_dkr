@@ -10,3 +10,5 @@ LABEL tech.healthpay.ci.frontend=$FRONTEND_CI_RUN
 LABEL tech.healthpay.artifact.frontend=$FRONTEND_ARTIFACT_SHA256
 RUN rm -rf /usr/share/nginx/html/*
 COPY build/ /usr/share/nginx/html/
+RUN find /usr/share/nginx/html -type d -exec chmod 755 {} \; \
+    && find /usr/share/nginx/html -type f -exec chmod 644 {} \;
