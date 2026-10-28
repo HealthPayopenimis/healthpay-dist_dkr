@@ -50,7 +50,7 @@ components:
   - name: healthpay-fe_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe_js
     ref: poc/claim-context-release-oct28
-    commit: e05055e37d9119eb73641ce891c1f8b865c97245
+    commit: 6c3fa35a1f8d68728c5b5972e209ec378dd2ff80
     role: frontend-assembly
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
