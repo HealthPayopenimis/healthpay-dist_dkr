@@ -12,7 +12,7 @@ flock -n 9
 OLD_FE=registry.digitalocean.com/healthpay-payer/frontend@sha256:66413a309e7c0d2ad04cf58a5bf112a831fb7ef971144c7faf7fa17446b8362d
 BACKEND=registry.digitalocean.com/healthpay-payer/backend@sha256:fa08084e6f449283eee0779ee2ef5edf47a326c27d2980e7750a7266a5fcfcae
 TLS_SHA=168d0eed7bf83ebed59ea531cf548b14cf93d6768ebf3f98a86748505ce4a5b1
-SOURCE=435f5a86a68c96eb0d62463203cb7ebf0a3ac8ea
+SOURCE=6a5b8007baf78f56cc005812451f4ac6e4e9b222
 COMPOSE=(docker compose -f compose.healthpay.yml)
 [[ $(grep -c '^FE_IMAGE=' .env) == 1 && $(grep -c '^BE_IMAGE=' .env) == 1 ]]
 [[ $(sed -n 's/^BE_IMAGE=//p' .env) == "$BACKEND" ]]
