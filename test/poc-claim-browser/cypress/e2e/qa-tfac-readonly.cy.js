@@ -216,7 +216,7 @@ function addSupportedService() {
     cy.writeFile('cypress/evidence/tfac-service-contract-metadata.json', {
       codeMatches: node?.code === SERVICE_CODE,
       packagetype: node?.packagetype ?? null,
-      serviceSetArray: Array.isArray(node?.serviceSet),
+      projectedServiceSetArray: Array.isArray(node?.serviceserviceSet),
       servicesLinkedArray: Array.isArray(node?.servicesLinked),
       returnedFields: Object.keys(node || {}),
     }, { log: false });
@@ -235,10 +235,9 @@ function addSupportedService() {
     }));
     cy.writeFile('cypress/evidence/tfac-actual-service-table-rows.json', { rows }, { log: false });
   });
-  cy.get('.MuiAutocomplete-root input').filter((_, input) => input.value.includes(SERVICE_CODE)).first().closest('tr').within(() => {
-    cy.get('input').eq(1).should('have.value', '1');
-    cy.get('input').eq(2).clear().type('100.00', { delay: 0 }).should(($input) => expect(Number($input.val())).to.eq(100));
-  });
+  const selectedServiceRow = () => cy.get('tr').filter((_, row) => Array.from(row.querySelectorAll('input')).some((input) => String(input.value).includes(SERVICE_CODE))).first();
+  selectedServiceRow().find('input:not([type="hidden"]):not([type="checkbox"])').eq(1).should('be.enabled').and('have.value', '1');
+  selectedServiceRow().find('input:not([type="hidden"]):not([type="checkbox"])').eq(2).should('be.enabled').and(($input) => expect(Number($input.val()), 'approved service price').to.eq(100));
 }
 
 function recordEntryEvidence(file, extra = {}) {
