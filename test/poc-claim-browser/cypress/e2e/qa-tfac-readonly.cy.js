@@ -222,6 +222,19 @@ function addSupportedService() {
     }, { log: false });
   });
   cy.get('[role="option"]:visible').contains(SERVICE_CODE).click();
+  cy.document({ log: false }).then((document) => {
+    const tables = Array.from(document.querySelectorAll('table')).filter((table) => table.querySelector('input[placeholder*="خدمة طبية"]'));
+    const rows = tables.flatMap((table) => Array.from(table.querySelectorAll('tr'))).map((row) => ({
+      cells: row.querySelectorAll('td').length,
+      inputs: Array.from(row.querySelectorAll('input')).map((input) => ({
+        type: input.type, disabled: input.disabled,
+        containsServiceCode: String(input.value).includes(SERVICE_CODE),
+        quantityOne: String(input.value) === '1', amountHundred: Number(input.value) === 100,
+        empty: String(input.value) === '',
+      })),
+    }));
+    cy.writeFile('cypress/evidence/tfac-actual-service-table-rows.json', { rows }, { log: false });
+  });
   cy.get('.MuiAutocomplete-root input').filter((_, input) => input.value.includes(SERVICE_CODE)).first().closest('tr').within(() => {
     cy.get('input').eq(1).should('have.value', '1');
     cy.get('input').eq(2).clear().type('100.00', { delay: 0 }).should(($input) => expect(Number($input.val())).to.eq(100));
