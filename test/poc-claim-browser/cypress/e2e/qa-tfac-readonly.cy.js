@@ -212,6 +212,14 @@ function addSupportedService() {
     assertResponseOk(response, 'source-backed service picker');
     const edges = response.body?.data?.medicalServicesStr?.edges || [];
     expect(edges.some((edge) => edge.node?.code === SERVICE_CODE), 'facility price-list service result').to.eq(true);
+    const node = edges.find((edge) => edge.node?.code === SERVICE_CODE)?.node;
+    cy.writeFile('cypress/evidence/tfac-service-contract-metadata.json', {
+      codeMatches: node?.code === SERVICE_CODE,
+      packagetype: node?.packagetype ?? null,
+      serviceSetArray: Array.isArray(node?.serviceSet),
+      servicesLinkedArray: Array.isArray(node?.servicesLinked),
+      returnedFields: Object.keys(node || {}),
+    }, { log: false });
   });
   cy.get('[role="option"]:visible').contains(SERVICE_CODE).click();
   cy.get('.MuiAutocomplete-root input').filter((_, input) => input.value.includes(SERVICE_CODE)).first().closest('tr').within(() => {
@@ -234,8 +242,23 @@ function recordEntryEvidence(file, extra = {}) {
 }
 
 describe('HealthPay TFACCLM — scoped claim read-only acceptance', () => {
+  beforeEach(() => {
+    Cypress.env('qaRuntimeErrors', []);
+    cy.on('uncaught:exception', (error) => {
+      const errors = Cypress.env('qaRuntimeErrors') || [];
+      errors.push({
+        name: error.name,
+        undefinedPropertyRead: /Cannot read properties of undefined/.test(String(error.message)),
+        mapPropertyRead: /reading ['"]map['"]/.test(String(error.message)),
+        claimChildPanelOwner: /ClaimChildPanel/.test(String(error.stack || '')),
+      });
+      Cypress.env('qaRuntimeErrors', errors);
+      return false;
+    });
+  });
   afterEach(function () {
-    cy.get('#root').then(($root) => {
+    cy.document({ log: false }).then((document) => {
+      const $root = Cypress.$(document.getElementById('root'));
       const labels = $root.find('label').map((_, label) => ({
         text: normalized(label.textContent),
         visible: Cypress.$(label).is(':visible'),
@@ -249,9 +272,12 @@ describe('HealthPay TFACCLM — scoped claim read-only acceptance', () => {
       const file = this.currentTest.title.includes('fresh/deep') ? 'fresh' : this.currentTest.title.includes('transport') ? 'transport' : 'list';
       cy.writeFile(`cypress/evidence/tfac-context-dom-${file}.json`, {
         labels, inputs,
-        pathname: $root[0].ownerDocument.defaultView.location.pathname,
+        pathname: document.defaultView.location.pathname,
+        runtimeErrors: Cypress.env('qaRuntimeErrors') || [],
+        rootPresent: $root.length > 0,
         status: $root.find('[role="alert"],[role="status"],[aria-busy]').map((_, element) => normalized(element.textContent)).get(),
       }, { log: false });
+      cy.then(() => expect(Cypress.env('qaRuntimeErrors') || [], 'no uncaught application errors').to.have.length(0));
     });
   });
   it('reaches scoped editable entry readiness through three independent normal list-to-Add transitions', () => {
