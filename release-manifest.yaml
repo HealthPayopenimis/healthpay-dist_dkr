@@ -50,7 +50,7 @@ components:
   - name: healthpay-fe_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe_js
     ref: poc/claim-context-release-oct28
-    commit: a56b64fd8e84b2c579e4a88fffbca15a19bd49c4
+    commit: 435f5a86a68c96eb0d62463203cb7ebf0a3ac8ea
     role: frontend-assembly
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
@@ -120,7 +120,7 @@ components:
   - name: healthpay-fe-claim_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-claim_js
     ref: poc/claim-context-oct28
-    commit: 003a5981574f007eaa29f458ca525d5ce8dca2cf
+    commit: e2f18d002b6e9f0bc40a61c3054c4cb3a0aa6474
     role: frontend-module
   - name: healthpay-fe-claim_batch_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-claim_batch_js
