@@ -33,3 +33,10 @@ jobs:
         run: python3 script/test_healthpay_tls_ciphers.py -v
       - name: Check frontend-only rollout and rollback script syntax without execution
         run: bash -n script/deploy_poc_frontend.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Test fail-closed claim browser guard without credentials or target traffic
+        run: node test/poc-claim-browser/cypress/support/qa-tfac-guard.test.js
+      - name: Parse scoped claim browser tests without execution
+        run: find test/poc-claim-browser -type f -name '*.js' -exec node --check {} \;

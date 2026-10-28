@@ -1,0 +1,16 @@
+{
+  "actor": "TFACCLM",
+  "facility": { "code": "TFAC001", "id": 1 },
+  "claimAdmin": { "code": "TFACCLM", "id": 2 },
+  "insuree": { "nationalId": "29001010190019", "id": 33 },
+  "diagnosis": { "code": "TDX001", "id": 1 },
+  "service": { "code": "TSVC01", "id": 2 },
+  "syntheticClaimCode": "TFACC001",
+  "syntheticExplanation": "TEST-TFAC — مطالبة اختبارية — ليست مطالبة طبية حقيقية",
+  "quantity": "1",
+  "requestedAmount": "100.00",
+  "expectedRights": [111002, 111005],
+  "forbiddenRights": [111008],
+  "knownPolicy": { "id": 5, "status": 4 },
+  "knownClaimCount": 0
+}
