@@ -50,7 +50,7 @@ components:
   - name: healthpay-fe_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe_js
     ref: poc/claim-context-release-oct28
-    commit: 6c3fa35a1f8d68728c5b5972e209ec378dd2ff80
+    commit: 0311536863c6610c8949c239ededfbebe7f35848
     role: frontend-assembly
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
@@ -79,8 +79,8 @@ components:
     role: frontend-module
   - name: healthpay-fe-location_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-location_js
-    ref: issue37/optional-ward
-    commit: b8676be78045673b2e4c9b5357b6aa89f74d8777
+    ref: poc/location-reselection-oct28
+    commit: d23ba4ee85b73374f867b52fa92c1bb439cb9508
     role: frontend-module
   - name: healthpay-fe-insuree_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-insuree_js
@@ -224,7 +224,7 @@ components:
     role: backend-module
   - name: healthpay-fe-language_ar_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-language_ar_js
-    ref: issue37/optional-ward-label
+    ref: poc/location-reselection-oct28-label
     commit: f9b609365399aeae4c77a8255f02b6803cc231b1
     role: frontend-module (new, Tier B)
   - name: healthpay-be-egypt_py
