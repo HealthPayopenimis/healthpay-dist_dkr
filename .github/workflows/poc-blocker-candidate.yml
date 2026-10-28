@@ -18,7 +18,7 @@ jobs:
         run: |
           git init /tmp/healthpay-fe-candidate
           git -C /tmp/healthpay-fe-candidate remote add origin https://github.com/HealthPayopenimis/healthpay-fe_js.git
-          git -C /tmp/healthpay-fe-candidate fetch --depth=1 origin 6a5b8007baf78f56cc005812451f4ac6e4e9b222
+          git -C /tmp/healthpay-fe-candidate fetch --depth=1 origin fc7548fbcfadfea63ce1616ef767aec8a400b0d4
           git -C /tmp/healthpay-fe-candidate checkout --detach FETCH_HEAD
           git init /tmp/healthpay-be-current
           git -C /tmp/healthpay-be-current remote add origin https://github.com/HealthPayopenimis/healthpay-be_py.git
