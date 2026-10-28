@@ -234,6 +234,26 @@ function recordEntryEvidence(file, extra = {}) {
 }
 
 describe('HealthPay TFACCLM — scoped claim read-only acceptance', () => {
+  afterEach(function () {
+    cy.get('#root').then(($root) => {
+      const labels = $root.find('label').map((_, label) => ({
+        text: normalized(label.textContent),
+        visible: Cypress.$(label).is(':visible'),
+      })).get();
+      const inputs = $root.find('input:not([type="password"]):not([type="hidden"]),textarea').map((_, input) => ({
+        name: input.name,
+        placeholder: input.placeholder,
+        disabled: input.disabled,
+        visible: Cypress.$(input).is(':visible'),
+      })).get();
+      const file = this.currentTest.title.includes('fresh/deep') ? 'fresh' : this.currentTest.title.includes('transport') ? 'transport' : 'list';
+      cy.writeFile(`cypress/evidence/tfac-context-dom-${file}.json`, {
+        labels, inputs,
+        pathname: $root[0].ownerDocument.defaultView.location.pathname,
+        status: $root.find('[role="alert"],[role="status"],[aria-busy]').map((_, element) => normalized(element.textContent)).get(),
+      }, { log: false });
+    });
+  });
   it('reaches scoped editable entry readiness through three independent normal list-to-Add transitions', () => {
     cy.login();
     [1, 2, 3].forEach((attempt) => {
