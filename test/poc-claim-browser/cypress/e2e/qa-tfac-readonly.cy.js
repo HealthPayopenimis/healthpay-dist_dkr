@@ -191,7 +191,8 @@ describe('HealthPay TFACCLM — scoped claim read-only acceptance', () => {
     openClaimFormFromList();
     fillCoreClaimFields();
     expect(Cypress.env('countBusinessForwarded'), 'business mutations forwarded before save').to.eq(0);
-    cy.get('button.MuiFab-root:visible').filter(':not(:disabled)').last().should('exist');
+    enabledField(['رقم المطالبة', 'Claim Code']).should('be.enabled');
+    enabledField(['توضيح', 'Explanation']).should('be.enabled');
     recordEntryEvidence('tfac-entry-form-ready.json', {
       insureeNationalId: INSUREE_NID,
       diagnosis: DIAGNOSIS_CODE,
