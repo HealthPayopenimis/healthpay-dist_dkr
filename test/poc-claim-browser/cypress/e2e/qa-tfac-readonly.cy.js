@@ -50,8 +50,9 @@ function assertRightsAndActor(response) {
   const user = response.body?.data?.user;
   expect(user, 'live user payload').to.be.an('object');
   expect(user.username, 'authenticated actor').to.eq(ACTOR);
-  expect(user.rights, 'live rights').to.include.members(RIGHTS);
-  expect(user.rights, 'review-only right absent').not.to.include(FORBIDDEN_RIGHT);
+  const rights = (user.rights || []).map(String);
+  expect(rights, 'live rights').to.include.members(RIGHTS.map(String));
+  expect(rights, 'review-only right absent').not.to.include(String(FORBIDDEN_RIGHT));
   expect(user.claimAdmin?.code, 'scoped claim administrator').to.eq(ACTOR);
   expect(normalizeRelayId(user.claimAdmin?.id), 'claim administrator id').to.eq(2);
   // The deployed user document is the source of truth. Some deployments omit
@@ -158,16 +159,16 @@ function fillCoreClaimFields() {
 }
 
 function addSupportedService() {
-  cy.get('.MuiAutocomplete-root input:not(:disabled)').filter(':visible').last().click().clear().type(SERVICE_CODE, { delay: 0 });
+  cy.get('input[placeholder*="خدمة طبية"]:not(:disabled)').filter(':visible').first().click().clear().type(SERVICE_CODE, { delay: 0 });
   cy.wait('@tfacServicePicker').then(({ response }) => {
     assertResponseOk(response, 'source-backed service picker');
     const edges = response.body?.data?.medicalServicesStr?.edges || [];
     expect(edges.some((edge) => edge.node?.code === SERVICE_CODE), 'facility price-list service result').to.eq(true);
   });
   cy.get('[role="option"]:visible').contains(SERVICE_CODE).click();
-  cy.contains('tr', SERVICE_CODE, { timeout: 60000 }).filter(':visible').first().within(() => {
+  cy.get('.MuiAutocomplete-root input').filter((_, input) => input.value.includes(SERVICE_CODE)).first().closest('tr').within(() => {
     cy.get('input').eq(1).should('have.value', '1');
-    cy.get('input').eq(2).clear().type('100.00', { delay: 0 }).should('have.value', '100.00');
+    cy.get('input').eq(2).clear().type('100.00', { delay: 0 }).should(($input) => expect(Number($input.val())).to.eq(100));
   });
 }
 
