@@ -48,7 +48,9 @@ beforeEach(() => {
     if (classification.kind === 'READ' || classification.kind === 'AUTH') {
       if (classification.kind === 'READ') {
         const alias = readAlias(query);
-        if (alias) request.alias = alias;
+        // Opening the picker and its debounced typed search are different reads.
+        // Only the exact authorized typed search establishes selection readiness.
+        if (alias && (alias !== 'tfacServicePicker' || variables?.searchString === 'TSVC01')) request.alias = alias;
       }
       events.push(safeEvent(request, classification.kind === 'AUTH' ? 'AUTH' : 'READ', 'continued'));
       Cypress.env('qaTransportEvents', events);
