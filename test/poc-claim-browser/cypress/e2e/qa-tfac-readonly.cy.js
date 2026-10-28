@@ -229,13 +229,14 @@ function addSupportedService() {
       inputs: Array.from(row.querySelectorAll('input')).map((input) => ({
         type: input.type, disabled: input.disabled,
         containsServiceCode: String(input.value).includes(SERVICE_CODE),
+        selectedServiceLabel: String(input.value).startsWith(`${SERVICE_CODE} `),
         quantityOne: String(input.value) === '1', amountHundred: Number(input.value) === 100,
         empty: String(input.value) === '',
       })),
     }));
     cy.writeFile('cypress/evidence/tfac-actual-service-table-rows.json', { rows }, { log: false });
   });
-  const selectedServiceRow = () => cy.get('tr').filter((_, row) => Array.from(row.querySelectorAll('input')).some((input) => String(input.value).includes(SERVICE_CODE))).first();
+  const selectedServiceRow = () => cy.get('input[placeholder*="خدمة طبية"]').filter((_, input) => String(input.value).startsWith(`${SERVICE_CODE} `)).first().closest('tr');
   selectedServiceRow().find('input:not([type="hidden"]):not([type="checkbox"])').eq(1).should('be.enabled').and('have.value', '1');
   selectedServiceRow().find('input:not([type="hidden"]):not([type="checkbox"])').eq(2).should('be.enabled').and(($input) => expect(Number($input.val()), 'approved service price').to.eq(100));
 }
