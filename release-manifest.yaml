@@ -224,7 +224,7 @@ components:
     role: backend-module
   - name: healthpay-fe-language_ar_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-language_ar_js
-    ref: poc/location-reselection-oct28-label
+    ref: issue37/optional-ward-label
     commit: f9b609365399aeae4c77a8255f02b6803cc231b1
     role: frontend-module (new, Tier B)
   - name: healthpay-be-egypt_py
