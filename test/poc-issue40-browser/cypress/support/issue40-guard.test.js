@@ -18,6 +18,9 @@ assert.match(browserSpec, /delayedOldWard/);
 assert.match(browserSpec, /issue40WardBEmpty/);
 assert.match(browserSpec, /same-parent re-selection/);
 assert.match(browserSpec, /issue40ForbiddenUiClicks/);
+assert.match(browserSpec, /MuiList-root \.MuiListItem-root/);
+assert.doesNotMatch(browserSpec, /MuiList-root > \.MuiListItem-root/);
+assert.match(browserSpec, /Two actual user-scoped region rows/);
 
 // Execute only guard setup with mock Cypress, never browser/test bodies.
 const handlers = [];

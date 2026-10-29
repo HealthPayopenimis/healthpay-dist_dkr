@@ -41,7 +41,7 @@ function paper(titlePattern) {
     !Array.from(element.querySelectorAll('.MuiGrid-item')).some((child) => titlePattern.test(normalized(child.textContent))),
   ).first().closest('.MuiPaper-root');
 }
-function rowsIn(title) { return paper(title).find('.MuiList-root > .MuiListItem-root'); }
+function rowsIn(title) { return paper(title).find('.MuiList-root .MuiListItem-root'); }
 function clickRow(title, code) {
   rowsIn(title).filter((_, row) => normalized(row.textContent).startsWith(`${code} -`)).first().should('be.visible').click();
 }
@@ -62,9 +62,9 @@ function openExistingFacility() {
 function regionMetadata(response) {
   const nodes = response?.body?.data?.locations?.edges?.map((edge) => edge.node).filter(Boolean) || [];
   if (nodes.length < 2) throw new Error('Two live regions needed for the two-parent regression; no regions fabricated.');
-  const safe = nodes.slice(0, 2).map(({ id, uuid, type, code }) => ({ id, uuid, type, code }));
+  const safe = nodes.map(({ id, uuid, type, code }) => ({ id, uuid, type, code }));
   expect(safe.every((node) => node.uuid && node.type === 'R'), 'live region metadata').to.eq(true);
-  Cypress.env('issue40Regions', safe);
+  Cypress.env('issue40AllRegions', safe);
 }
 function prepareControlledRegions() {
   cy.intercept('POST', '**/graphql', (request) => {
@@ -110,9 +110,26 @@ function clickRegion(index) {
 function preparePath(options) {
   cy.issue40Login();
   prepareControlledRegions();
-  installControlledChildTransport(options);
   openExistingFacility();
   cy.wait('@issue40Regions').then(({ response }) => regionMetadata(response));
+  cy.get('body', { timeout: 120000 }).should(($body) => {
+    const progress = $body.find('[role="progressbar"]').toArray().filter((bar) => bar.offsetWidth || bar.offsetHeight);
+    expect(progress.length, 'initial live context loading complete').to.eq(0);
+  });
+  rowsIn(labels.region).then(($rows) => {
+    const all = Cypress.env('issue40AllRegions') || [];
+    const visible = $rows.toArray().map((row) => ({
+      row, node: all.find((node) => normalized(row.textContent).startsWith(`${node.code} -`)),
+    })).filter(({ node }) => Boolean(node));
+    const first = visible.find(({ row }) => !row.classList.contains('Mui-selected'));
+    const second = visible.find(({ node }) => node.uuid !== first?.node.uuid);
+    if (!first || !second) throw new Error('Two actual user-scoped region rows are required; no region fabricated.');
+    Cypress.env('issue40Regions', [first.node, second.node]);
+    Cypress.env('issue40ControlledCounts', {});
+  });
+  // Edge-case child responses begin only after actual context hydration. The
+  // selected parents are actual visible scoped rows, not all-region guesses.
+  installControlledChildTransport(options);
 }
 function chooseParentA() {
   clickRegion(0);

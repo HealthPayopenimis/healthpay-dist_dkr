@@ -58,6 +58,7 @@ beforeEach(() => {
   Cypress.env('issue40ForbiddenUiClicks', 0);
   Cypress.env('issue40ControlledCounts', {});
   Cypress.env('issue40Regions', []);
+  Cypress.env('issue40AllRegions', []);
   Cypress.on('window:before:load', (win) => {
     win.document.addEventListener('click', (event) => {
       const target = event.target;
