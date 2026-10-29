@@ -42,3 +42,7 @@ jobs:
         run: node test/poc-claim-browser/cypress/support/qa-tfac-guard.test.js
       - name: Parse scoped claim browser tests without execution
         run: find test/poc-claim-browser -type f -name '*.js' -exec node --check {} \;
+      - name: Verify fail-closed Issue 40 browser guard and inventory offline
+        run: node test/poc-issue40-browser/cypress/support/issue40-guard.test.js
+      - name: Parse scoped Issue 40 browser tests without target traffic
+        run: find test/poc-issue40-browser -type f -name '*.js' -exec node --check {} \;
