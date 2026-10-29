@@ -49,8 +49,8 @@ sourcing_allowlist:
 components:
   - name: healthpay-fe_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe_js
-    ref: poc/claim-context-release-oct28
-    commit: fc7548fbcfadfea63ce1616ef767aec8a400b0d4
+    ref: poc/issue40-release-oct29
+    commit: 776df7f0af571dbf38a2fba0ca6790d4e663f677
     role: frontend-assembly
   - name: healthpay-be_py
     repo: https://github.com/HealthPayopenimis/healthpay-be_py
@@ -79,8 +79,8 @@ components:
     role: frontend-module
   - name: healthpay-fe-location_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-location_js
-    ref: poc/location-reselection-oct28
-    commit: d23ba4ee85b73374f867b52fa92c1bb439cb9508
+    ref: fix/issue40-catchment-scope-oct29
+    commit: 77b5d7e65d97a8369d3fb591fd7c49437e5cc07b
     role: frontend-module
   - name: healthpay-fe-insuree_js
     repo: https://github.com/HealthPayopenimis/healthpay-fe-insuree_js

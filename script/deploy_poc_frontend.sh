@@ -9,10 +9,10 @@ VALUE=${2:?immutable image or exact backup path required}
 cd /opt/healthpay/healthpay-dist_dkr
 exec 9>/var/lock/healthpay-poc-frontend.lock
 flock -n 9
-OLD_FE=registry.digitalocean.com/healthpay-payer/frontend@sha256:66413a309e7c0d2ad04cf58a5bf112a831fb7ef971144c7faf7fa17446b8362d
+OLD_FE=registry.digitalocean.com/healthpay-payer/frontend@sha256:b3609a02533da7b0f41130657e4d9d261f6c0fa5180f3027c2d1e666757295c7
 BACKEND=registry.digitalocean.com/healthpay-payer/backend@sha256:fa08084e6f449283eee0779ee2ef5edf47a326c27d2980e7750a7266a5fcfcae
 TLS_SHA=168d0eed7bf83ebed59ea531cf548b14cf93d6768ebf3f98a86748505ce4a5b1
-SOURCE=fc7548fbcfadfea63ce1616ef767aec8a400b0d4
+SOURCE=776df7f0af571dbf38a2fba0ca6790d4e663f677
 COMPOSE=(docker compose -f compose.healthpay.yml)
 [[ $(grep -c '^FE_IMAGE=' .env) == 1 && $(grep -c '^BE_IMAGE=' .env) == 1 ]]
 [[ $(sed -n 's/^BE_IMAGE=//p' .env) == "$BACKEND" ]]
