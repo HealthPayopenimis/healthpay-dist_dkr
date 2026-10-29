@@ -74,9 +74,11 @@ beforeEach(() => {
   cy.intercept('POST', '**/graphql', (request) => {
     const kind = operationKind(request.body && request.body.query);
     if (kind === 'READ' || kind === 'AUTH') {
-      request.continue((response) => {
-        record(safeEvent(request, kind, 'continued', { httpStatus: response.statusCode }));
-      });
+      // Record safe request metadata before forwarding. Do not attach a
+      // response callback to unrelated reads: navigation may legitimately
+      // cancel them and Cypress turns that cancellation into a test error.
+      record(safeEvent(request, kind, 'continued'));
+      request.continue();
       return;
     }
     record(safeEvent(request, kind, 'blocked'));

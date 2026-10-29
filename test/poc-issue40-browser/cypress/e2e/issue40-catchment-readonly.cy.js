@@ -53,7 +53,8 @@ function openExistingFacility() {
     if (!code) throw new Error('No pre-existing synthetic TFAC facility visible; no fixture invented.');
     Cypress.env('issue40FacilityCode', code);
     return cy.get('tbody tr, .MuiTableBody-root tr').filter((_, row) =>
-      Array.from(row.querySelectorAll('td')).some((cell) => normalized(cell.textContent) === code)).first().dblclick();
+      Array.from(row.querySelectorAll('td')).some((cell) => normalized(cell.textContent) === code)).first()
+      .find('td').filter((_, cell) => normalized(cell.textContent) === code).first().dblclick();
   });
   cy.location('pathname', { timeout: 120000 }).should('include', EDIT_ROUTE_FRAGMENT);
   Object.values(labels).forEach((label) => paper(label).should('exist'));
@@ -70,7 +71,8 @@ function prepareControlledRegions() {
     const query = String(request.body?.query || '');
     if (!/\blocations\s*\(/.test(query) || !/\btype\s*:\s*"R"/.test(query)) return;
     request.alias = 'issue40Regions';
-    request.continue((response) => regionMetadata(response));
+    request.on('response', (response) => regionMetadata(response));
+    request.continue();
   });
 }
 function body(nodes) {
