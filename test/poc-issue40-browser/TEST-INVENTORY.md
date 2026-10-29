@@ -24,3 +24,5 @@ The stale-switch case also asserts bounded request counts to detect duplicate/ru
 ## Validation status
 
 Offline syntax and source guards are the only validation performed in this task. No Cypress browser run, live navigation, credential read/output, SSH action, remote container action, or browser-pass claim is made here.
+
+A separate one-test `issue40-scope-diagnostic.cy.js` is a no-write structure/loading diagnostic, explicitly invoked with runner mode `diagnostic`. It is not included in the five acceptance tests or any claimed release-pass total.
