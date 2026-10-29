@@ -122,7 +122,7 @@ function preparePath(options) {
       row, node: all.find((node) => normalized(row.textContent).startsWith(`${node.code} -`)),
     })).filter(({ node }) => Boolean(node));
     const first = visible.find(({ row }) => !row.classList.contains('Mui-selected'));
-    const second = visible.find(({ node }) => node.uuid !== first?.node.uuid);
+    const second = visible.find(({ row, node }) => !row.classList.contains('Mui-selected') && node.uuid !== first?.node.uuid);
     if (!first || !second) throw new Error('Two actual user-scoped region rows are required; no region fabricated.');
     Cypress.env('issue40Regions', [first.node, second.node]);
     Cypress.env('issue40ControlledCounts', {});
